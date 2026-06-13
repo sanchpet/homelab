@@ -5,3 +5,12 @@ sops = "latest"
 age = "latest"
 kubectl = "latest"
 flux2 = "latest"
+# Repo-wide git hook runner (pre-commit). Config: .pre-commit-config.yaml.
+# postinstall wires up the git hook + downloads hook envs on install.
+pre-commit = { version = "4.6.0", postinstall = "mise exec -- pre-commit install --install-hooks || true" }
+
+[hooks]
+# Bullet-proof per-clone: re-install the pre-commit git hook on entering the repo.
+# Covers the case where pre-commit is already cached globally, so the tool's
+# postinstall does not fire on a fresh clone.
+enter = "pre-commit install --install-hooks 2>/dev/null || true"
