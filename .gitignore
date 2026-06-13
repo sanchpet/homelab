@@ -1,7 +1,7 @@
 # --- Ansible ---
-# Keep the real inventory out of git by default (the IP is not a secret, but
-# connection data may slip in). Commit hosts.example.ini.
-ansible/inventory/hosts.ini
+# The real inventory IS committed: IPs/DNS/topology are not secrets (public infra,
+# hardened, internet-facing by design). Real secrets go to SOPS/ansible-vault, never
+# the inventory.
 ansible/roles/external/
 *.retry
 
