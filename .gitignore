@@ -1,0 +1,32 @@
+# --- Ansible ---
+# Реальный inventory держим вне git по умолчанию (IP не секрет, но в нём могут
+# случайно оказаться connection-данные). Коммить hosts.example.ini.
+ansible/inventory/hosts.ini
+ansible/roles/external/
+*.retry
+
+# --- SOPS / age private keys (НИКОГДА в git) ---
+*.agekey
+*.age.key
+age.key
+.sops-age-key.txt
+
+# --- Ansible Vault password ---
+.vault-pass
+.vault-password
+
+# --- kubeconfig, вытянутый с узла ---
+kubernetes/kubeconfig/
+ansible/kubeconfig/
+
+# --- Terraform ---
+terraform/**/.terraform/
+terraform/**/*.tfstate
+terraform/**/*.tfstate.backup
+terraform/**/*.tfvars
+!terraform/**/*.example.tfvars
+**/.terraform.lock.hcl
+
+# --- misc ---
+*.swp
+.DS_Store

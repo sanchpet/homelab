@@ -1,0 +1,13 @@
+---
+# Канал релизов k3s. `stable` тянет последний стабильный; бамп — осознанно.
+k3s_channel: stable
+# Либо пин точной версии (тогда имеет приоритет над каналом):
+#   k3s_version: "v1.31.4+k3s1"
+k3s_version: ""
+
+# Single-node: Traefik отключаем — ingress берём из GitOps-каталога (ingress-nginx).
+k3s_disable:
+  - traefik
+
+k3s_write_kubeconfig_mode: "0644"
+k3s_node_name: "{{ inventory_hostname }}"

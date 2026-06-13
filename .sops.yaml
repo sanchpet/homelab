@@ -1,0 +1,9 @@
+# SOPS creation rules — секрет шифруется на age-ключ СВОЕГО кластера.
+# Сгенерировать ключ кластера:  age-keygen -o age-vps-stand.agekey
+# Публичный ключ (age1...) вставить ниже вместо плейсхолдера.
+creation_rules:
+  - path_regex: kubernetes/.*/vps-stand/.*\.sops\.ya?ml$
+    age: age1REPLACE_WITH_VPS_STAND_PUBLIC_KEY
+  # Новый кластер → добавить правило со своим age-ключом:
+  # - path_regex: kubernetes/.*/<cluster>/.*\.sops\.ya?ml$
+  #   age: age1...

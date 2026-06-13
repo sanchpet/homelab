@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  ansible-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pipx install ansible-lint
+      - name: Lint Ansible
+        working-directory: ansible
+        run: ansible-lint
+
+  sops-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure *.sops.yaml files are encrypted
+        run: |
+          files=$(git ls-files '*.sops.yaml' || true)
+          status=0
+          for f in $files; do
+            if ! grep -q '^sops:' "$f"; then
+              echo "::error file=$f::Unencrypted SOPS file committed"
+              status=1
+            fi
+          done
+          [ "$status" -eq 0 ] && echo "OK: no plaintext SOPS files"
+          exit $status
+
+  kubeconform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate manifests (placeholder)
+        run: |
+          # TODO: подключить kubeconform, когда в kubernetes/ появятся манифесты
+          echo "kubeconform будет валидировать манифесты по мере наполнения"

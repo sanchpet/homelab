@@ -1,0 +1,49 @@
+---
+# Тонкий идемпотентный wrapper вокруг официального установщика get.k3s.io.
+# Не зависит от затухающих Galaxy-ролей; всё под контролем репо.
+
+- name: Check whether k3s is already installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s
+  register: k3s_binary
+
+- name: Compose INSTALL_K3S_EXEC flags
+  ansible.builtin.set_fact:
+    k3s_exec_flags: >-
+      {{ (['server']
+          + (k3s_disable | map('regex_replace', '^', '--disable=') | list)
+          + ['--write-kubeconfig-mode=' + k3s_write_kubeconfig_mode,
+             '--node-name=' + k3s_node_name]) | join(' ') }}
+
+- name: Download official k3s installer
+  ansible.builtin.get_url:
+    url: https://get.k3s.io
+    dest: /tmp/k3s-install.sh
+    mode: "0755"
+  when: not k3s_binary.stat.exists
+
+- name: Run k3s installer (single-node server)
+  ansible.builtin.command:
+    cmd: /tmp/k3s-install.sh
+  environment:
+    INSTALL_K3S_CHANNEL: "{{ k3s_channel }}"
+    INSTALL_K3S_VERSION: "{{ k3s_version }}"
+    INSTALL_K3S_EXEC: "{{ k3s_exec_flags }}"
+  when: not k3s_binary.stat.exists
+  changed_when: true
+  notify: Wait for k3s node ready
+
+- name: Ensure k3s service is enabled and running
+  ansible.builtin.systemd:
+    name: k3s
+    enabled: true
+    state: started
+
+- name: Fetch kubeconfig to the control machine
+  ansible.builtin.fetch:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: "{{ playbook_dir }}/../../kubernetes/kubeconfig/{{ k3s_node_name }}.yaml"
+    flat: true
+  changed_when: false
+  # Внутри server указан https://127.0.0.1:6443 — для доступа снаружи заменить на
+  # публичный IP/домен узла (вручную или sed). kubeconfig/ — в .gitignore.

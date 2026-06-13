@@ -1,0 +1,31 @@
+---
+- name: Authorize SSH public key for the connection user
+  ansible.posix.authorized_key:
+    user: "{{ ansible_user }}"
+    state: present
+    key: "{{ ssh_public_key }}"
+  when: ssh_public_key is defined and ssh_public_key | length > 0
+
+- name: Disable SSH password authentication (only after a key is in place)
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*PasswordAuthentication'
+    line: 'PasswordAuthentication no'
+    validate: 'sshd -t -f %s'
+  notify: Restart sshd
+  when: ssh_public_key is defined and ssh_public_key | length > 0
+
+- name: Install baseline packages
+  ansible.builtin.apt:
+    name:
+      - fail2ban
+      - curl
+      - ca-certificates
+    state: present
+    update_cache: true
+
+- name: Enable and start fail2ban
+  ansible.builtin.systemd:
+    name: fail2ban
+    enabled: true
+    state: started
