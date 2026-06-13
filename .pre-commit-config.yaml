@@ -1,0 +1,29 @@
+# Run: `pre-commit install` after cloning (requires `mise run deps` for ansible-lint).
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-merge-conflict
+      - id: check-added-large-files
+      - id: detect-private-key
+      - id: mixed-line-ending
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
+
+  # ansible-lint via the repo's pinned toolchain (so devsec/k3s.orchestration
+  # collections resolve). Requires `mise run deps` to have installed collections.
+  - repo: local
+    hooks:
+      - id: ansible-lint
+        name: ansible-lint
+        entry: bash -c 'cd ansible && uv run ansible-lint'
+        language: system
+        files: ^ansible/
+        pass_filenames: false
