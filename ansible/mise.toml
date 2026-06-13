@@ -1,7 +1,7 @@
 # Ansible toolchain (Layer 1). Merged with the repo-root mise.toml when you cd here:
 # root provides the cluster binaries (sops, age, kubectl, flux), this adds Python.
 [tools]
-python = "3.12"
+python = "3.14"
 uv = "latest"
 
 [env]
