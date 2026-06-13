@@ -1,7 +1,7 @@
 # --- Ansible ---
 # Keep the real inventory out of git by default (the IP is not a secret, but
-# connection data may slip in). Commit hosts.example.yml.
-ansible/inventory/hosts.yml
+# connection data may slip in). Commit hosts.example.ini.
+ansible/inventory/hosts.ini
 ansible/roles/external/
 *.retry
 
