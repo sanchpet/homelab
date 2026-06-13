@@ -17,8 +17,11 @@ Brings a fresh host into a managed state and installs k3s.
 
 ## Prerequisites
 
+From the repo root, set up the toolchain (Python, uv, Ansible, cluster CLIs) via mise:
+
 ```bash
-ansible-galaxy install -r requirements.yml
+mise install     # python, uv, sops, age, kubectl, flux
+mise run deps    # uv sync + ansible-galaxy install -r ansible/requirements.yml
 ```
 
 Then set the host IP in `inventory/hosts.ini` (replace `REPLACE_WITH_IP`).

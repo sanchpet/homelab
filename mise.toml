@@ -1,0 +1,22 @@
+# Toolchain for the homelab repo.
+#   mise install      # fetch all tools
+#   mise run deps     # install Python deps (uv) + Ansible collections
+[tools]
+python = "3.12"
+uv = "latest"
+# Layer 2 / cluster CLIs (used across kubernetes/):
+sops = "latest"
+age = "latest"
+kubectl = "latest"
+flux2 = "latest"
+
+[env]
+# uv-managed venv, auto-created and activated on entry into the repo.
+_.python.venv = { path = ".venv", create = true }
+
+[tasks.deps]
+description = "Install Python deps (uv) and Ansible collections"
+run = [
+  "uv sync",
+  "ansible-galaxy install -r ansible/requirements.yml",
+]

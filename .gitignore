@@ -27,6 +27,10 @@ terraform/**/*.tfvars
 !terraform/**/*.example.tfvars
 **/.terraform.lock.hcl
 
+# --- Python / uv / mise ---
+.venv/
+__pycache__/
+
 # --- misc ---
 *.swp
 .DS_Store
