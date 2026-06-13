@@ -1,17 +1,15 @@
 ---
-# Полный bootstrap узла стенда: харднинг SSH → установка k3s.
-# Запуск (первый раз, пароль ещё активен):
-#   ansible-galaxy install -r ../requirements.yml
-#   ansible-playbook playbooks/site.yml --ask-pass --ask-become-pass
-# После заливки ключа и отключения пароля — дальше по ключу, без --ask-pass.
+# Основной прогон (по ключу): baseline + харднинг на ВСЕ хосты, затем k3s на узлы кластера.
+#   ansible-playbook playbooks/site.yml
 
-- name: Bootstrap node (SSH hardening, OS prep)
-  hosts: vps_stand
+- name: Baseline + hardening (все серверы инфры)
+  hosts: all
   become: true
   roles:
-    - bootstrap
+    - common
+    - hardening
 
-- name: Install k3s (single-node server)
+- name: Install k3s (узлы кластера)
   hosts: vps_stand
   become: true
   roles:

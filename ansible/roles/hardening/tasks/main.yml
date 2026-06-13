@@ -1,0 +1,33 @@
+---
+# Community за основу (devsec.hardening — CIS/NSA, battle-tested) + свои расширения.
+# Это эталон принципа community-first для проекта (см. CLAUDE.md).
+
+- name: OS hardening (devsec) с override под k8s/VPN
+  ansible.builtin.import_role:
+    name: devsec.hardening.os_hardening
+  vars:
+    # КРИТИЧНО: k3s и anylink(VPN) требуют IP-форвардинг; devsec по умолчанию его
+    # глушит → переопределяем, иначе ломается сеть кластера и туннель.
+    sysctl_overwrite:
+      net.ipv4.ip_forward: 1
+      net.ipv6.conf.all.forwarding: 1
+
+- name: SSH hardening (devsec)
+  ansible.builtin.import_role:
+    name: devsec.hardening.ssh_hardening
+  vars:
+    ssh_server_ports: ['22']
+    ssh_allow_tcp_forwarding: 'yes'
+
+# --- Свои расширения поверх community-базы ---
+- name: Install fail2ban (own extension)
+  ansible.builtin.apt:
+    name: fail2ban
+    state: present
+    update_cache: true
+
+- name: Enable and start fail2ban
+  ansible.builtin.systemd:
+    name: fail2ban
+    enabled: true
+    state: started

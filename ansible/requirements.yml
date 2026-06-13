@@ -2,8 +2,11 @@
 # Установка:  ansible-galaxy install -r requirements.yml
 collections:
   - name: kubernetes.core
-    version: ">=5.0.0"
+    version: ">=6.4.0"
   - name: ansible.posix
-    version: ">=1.5.0"
+    version: ">=2.2.0"
+  # База для роли hardening (CIS/NSA, battle-tested). Major запинен — мажор может ломать.
+  - name: devsec.hardening
+    version: ">=10.6.0,<11.0.0"
 
 roles: []

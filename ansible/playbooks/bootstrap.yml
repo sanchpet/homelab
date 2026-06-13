@@ -1,0 +1,10 @@
+---
+# Day-0: сделать свежий хост управляемым. Запуск один раз, пока активен пароль:
+#   ansible-galaxy install -r ../requirements.yml
+#   ansible-playbook playbooks/bootstrap.yml --ask-pass --ask-become-pass
+# После — доступ по ключу, дальше site.yml без --ask-pass.
+- name: Day-0 bootstrap (make hosts manageable)
+  hosts: all
+  become: true
+  roles:
+    - bootstrap

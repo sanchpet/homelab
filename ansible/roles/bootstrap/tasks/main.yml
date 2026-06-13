@@ -1,4 +1,6 @@
 ---
+# Day-0 first-contact: сделать свежий хост управляемым. ТОЛЬКО начальный доступ.
+# Baseline → роль common. Безопасность → роль hardening.
 - name: Authorize SSH public key for the connection user
   ansible.posix.authorized_key:
     user: "{{ ansible_user }}"
@@ -14,18 +16,3 @@
     validate: 'sshd -t -f %s'
   notify: Restart sshd
   when: ssh_public_key is defined and ssh_public_key | length > 0
-
-- name: Install baseline packages
-  ansible.builtin.apt:
-    name:
-      - fail2ban
-      - curl
-      - ca-certificates
-    state: present
-    update_cache: true
-
-- name: Enable and start fail2ban
-  ansible.builtin.systemd:
-    name: fail2ban
-    enabled: true
-    state: started
