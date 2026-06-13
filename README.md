@@ -14,7 +14,7 @@ Each cluster is a `kubernetes/clusters/<name>/` directory with its own bootstrap
 
 ```bash
 flux bootstrap github --owner=<owner> --repository=homelab \
-  --path=kubernetes/clusters/vps-stand
+  --path=kubernetes/clusters/ips-usa-vps-2
 ```
 
 Each cluster's Flux reconciles only its own path. `infrastructure/` and `apps/` are

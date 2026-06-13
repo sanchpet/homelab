@@ -1,8 +1,8 @@
 # SOPS creation rules — a secret is encrypted to its OWN cluster's age key.
-# Generate a cluster key:  age-keygen -o age-vps-stand.agekey
+# Generate a cluster key:  age-keygen -o age-ips-usa-vps-2.agekey
 # Put the public key (age1...) below instead of the placeholder.
 creation_rules:
-  - path_regex: kubernetes/.*/vps-stand/.*\.sops\.ya?ml$
+  - path_regex: kubernetes/.*/ips-usa-vps-2/.*\.sops\.ya?ml$
     age: age1REPLACE_WITH_VPS_STAND_PUBLIC_KEY
   # New cluster → add a rule with its own age key:
   # - path_regex: kubernetes/.*/<cluster>/.*\.sops\.ya?ml$
