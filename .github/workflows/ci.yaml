@@ -9,8 +9,14 @@ jobs:
   ansible-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: pipx install ansible-lint
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: pip install ansible-core ansible-lint
+      - name: Install collections
+        working-directory: ansible
+        run: ansible-galaxy collection install -r requirements.yml
       - name: Lint Ansible
         working-directory: ansible
         run: ansible-lint
@@ -18,12 +24,14 @@ jobs:
   sops-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Ensure *.sops.yaml files are encrypted
+      - uses: actions/checkout@v5
+      - name: Ensure *.sops.yaml secret files are encrypted
         run: |
           files=$(git ls-files '*.sops.yaml' || true)
           status=0
           for f in $files; do
+            # Skip the SOPS config itself (.sops.yaml = creation rules, not a secret).
+            [ "$(basename "$f")" = ".sops.yaml" ] && continue
             if ! grep -q '^sops:' "$f"; then
               echo "::error file=$f::Unencrypted SOPS file committed"
               status=1
@@ -35,7 +43,7 @@ jobs:
   kubeconform:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Validate manifests (placeholder)
         run: |
           # TODO: wire up kubeconform once kubernetes/ has manifests
