@@ -31,6 +31,11 @@
 | `common` | baseline: пакеты, timezone, unattended-upgrades | всегда, на `all` | своё |
 | `hardening` | CIS/SSH-харднинг + fail2ban | всегда, на `all` | community (devsec) + своё |
 
+> **k3s — не своя роль.** Установка через официальную коллекцию `k3s.orchestration`
+> (k3s team, maintained), пин тега в `requirements.yml`, конфиг — в inventory
+> (`server_config_yaml`). Прецедент: своя k3s-роль была отброшена как нарушение
+> community-first (официальная коллекция оказалась maintained и консумится).
+
 ## Секреты
 
 Только **SOPS** (age), ключ на кластер (`.sops.yaml`). IP / домены / порты —

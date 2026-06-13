@@ -8,5 +8,9 @@ collections:
   # База для роли hardening (CIS/NSA, battle-tested). Major запинен — мажор может ломать.
   - name: devsec.hardening
     version: ">=10.6.0,<11.0.0"
+  # Официальная k3s-роль (k3s team, @dereknola, maintained). Git-источник, пин на тег.
+  - name: https://github.com/k3s-io/k3s-ansible.git
+    type: git
+    version: "1.2.1"
 
 roles: []

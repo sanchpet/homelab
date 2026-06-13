@@ -1,5 +1,0 @@
----
-- name: Wait for k3s node ready
-  ansible.builtin.command:
-    cmd: k3s kubectl wait --for=condition=Ready node --all --timeout=120s
-  changed_when: false

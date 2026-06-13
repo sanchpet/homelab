@@ -1,5 +1,5 @@
 ---
-# Основной прогон (по ключу): baseline + харднинг на ВСЕ хосты, затем k3s на узлы кластера.
+# Основной прогон (по ключу): baseline + харднинг на ВСЕ хосты, затем k3s.
 #   ansible-playbook playbooks/site.yml
 
 - name: Baseline + hardening (все серверы инфры)
@@ -9,8 +9,7 @@
     - common
     - hardening
 
-- name: Install k3s (узлы кластера)
-  hosts: vps_stand
-  become: true
-  roles:
-    - k3s
+# k3s — официальная коллекция k3s.orchestration (community-first, см. CLAUDE.md).
+# Берёт хосты из групп server/agent, конфиг — из inventory vars (server_config_yaml).
+- name: Install k3s cluster
+  ansible.builtin.import_playbook: k3s.orchestration.site

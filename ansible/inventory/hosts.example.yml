@@ -1,0 +1,31 @@
+---
+# Скопируй в hosts.yml и подставь значения. IP не секрет (Shodan/CT-логи).
+# Структура — конвенция коллекции k3s.orchestration (k3s_cluster → server/agent).
+k3s_cluster:
+  children:
+    server:
+      hosts:
+        vps-stand:
+          ansible_host: REPLACE_WITH_IP
+    agent:
+      hosts: {}
+
+  vars:
+    ansible_user: root
+
+    # Публичный SSH-ключ для роли bootstrap (зальёт, потом отключит пароль):
+    # ssh_public_key: "ssh-ed25519 AAAA... you@host"
+
+    # Версия k3s — бампать на свежий стабильный (https://github.com/k3s-io/k3s/releases).
+    k3s_version: v1.33.4+k3s1
+    api_endpoint: "{{ hostvars[groups['server'][0]]['ansible_host'] }}"
+
+    # token опущен намеренно: одиночный server сам сгенерит. Для многоузлового —
+    # token: "{{ ... }}" (openssl rand -base64 64) под ansible-vault.
+
+    # Конфиг сервера (/etc/rancher/k3s/config.yaml): отключаем Traefik (ingress —
+    # из GitOps-каталога), открываем kubeconfig на чтение.
+    server_config_yaml: |
+      disable:
+        - traefik
+      write-kubeconfig-mode: "0644"

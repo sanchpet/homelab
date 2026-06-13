@@ -1,7 +1,7 @@
 # --- Ansible ---
 # Реальный inventory держим вне git по умолчанию (IP не секрет, но в нём могут
-# случайно оказаться connection-данные). Коммить hosts.example.ini.
-ansible/inventory/hosts.ini
+# случайно оказаться connection-данные). Коммить hosts.example.yml.
+ansible/inventory/hosts.yml
 ansible/roles/external/
 *.retry
 
