@@ -1,18 +1,59 @@
 ---
-# Day-0 first-contact: make a fresh host manageable. INITIAL ACCESS ONLY.
-# Baseline → common role. Security → hardening role.
-- name: Authorize SSH public key for the connection user
+# Day-0 first-contact. Run ONCE as root:
+#   ansible-playbook playbooks/bootstrap.yml -u root -k
+# Creates the admin user with the SSH key + passwordless sudo, THEN locks down root
+# and password auth. Steady-state user afterwards is bootstrap_admin_user.
+#
+# Ordering matters: the admin user must be fully usable BEFORE root is locked, or you
+# lock yourself out. The assert below fails the play before any lockdown if the key is
+# missing. Keep the provider's web console handy during day-0 as a safety net.
+
+- name: Require an SSH public key before locking anything down
+  ansible.builtin.assert:
+    that:
+      - ssh_public_key is defined
+      - ssh_public_key | length > 0
+    fail_msg: "ssh_public_key must be set (group_vars/all.yml) before bootstrap"
+
+- name: Create the admin user
+  ansible.builtin.user:
+    name: "{{ bootstrap_admin_user }}"
+    shell: /bin/bash
+    create_home: true
+    groups: sudo
+    append: true
+
+- name: Authorize the SSH public key for the admin user
   ansible.posix.authorized_key:
-    user: "{{ ansible_user }}"
+    user: "{{ bootstrap_admin_user }}"
     state: present
     key: "{{ ssh_public_key }}"
-  when: ssh_public_key is defined and ssh_public_key | length > 0
 
-- name: Disable SSH password authentication (only after a key is in place)
+- name: Grant passwordless sudo to the admin user
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/{{ bootstrap_admin_user }}"
+    content: "{{ bootstrap_admin_user }} ALL=(ALL) NOPASSWD:ALL\n"
+    mode: "0440"
+    validate: "visudo -cf %s"
+
+# --- Lockdown (only after the admin user is fully usable) ---
+- name: Disable SSH password authentication
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     regexp: '^#?\s*PasswordAuthentication'
     line: 'PasswordAuthentication no'
     validate: 'sshd -t -f %s'
   notify: Restart sshd
-  when: ssh_public_key is defined and ssh_public_key | length > 0
+
+- name: Disable root SSH login
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*PermitRootLogin'
+    line: 'PermitRootLogin no'
+    validate: 'sshd -t -f %s'
+  notify: Restart sshd
+
+- name: Lock the root password
+  ansible.builtin.user:
+    name: root
+    password_lock: true

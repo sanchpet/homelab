@@ -1,8 +1,10 @@
 ---
-# Day-0: make a fresh host manageable. Run once, while password auth is still active:
+# Day-0: make a fresh host manageable. Run ONCE as root, while password auth is active:
 #   ansible-galaxy install -r ../requirements.yml
-#   ansible-playbook playbooks/bootstrap.yml --ask-pass --ask-become-pass
-# Afterwards access is key-based; run site.yml without --ask-pass.
+#   ansible-playbook playbooks/bootstrap.yml -u root -k
+# (-u root overrides ansible_user; -k = --ask-pass for the root password.)
+# Creates the admin user (sanchpet) + key + passwordless sudo, then locks down root.
+# Afterwards access is key-based as the admin user; run site.yml without -u/-k.
 - name: Day-0 bootstrap (make hosts manageable)
   hosts: all
   become: true

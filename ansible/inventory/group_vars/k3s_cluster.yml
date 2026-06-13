@@ -1,11 +1,7 @@
 ---
 # Variables for the k3s_cluster group. Kept out of the inventory file on purpose
 # (topology vs variables separation). Committed — no secrets here.
-ansible_user: root
-
-# Public SSH key for the bootstrap role (uploads the key, then disables passwords).
-# A public key is not a secret; uncomment and set yours:
-# ssh_public_key: "ssh-ed25519 AAAA... you@host"
+# (ansible_user and ssh_public_key live in group_vars/all.yml — they apply everywhere.)
 
 # k3s version — bump to a recent stable (https://github.com/k3s-io/k3s/releases).
 k3s_version: v1.33.4+k3s1

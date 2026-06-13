@@ -1,0 +1,3 @@
+---
+# Generic default — overridden in group_vars/all.yml with the real admin user.
+bootstrap_admin_user: admin

@@ -36,7 +36,7 @@ what the community already maintains.**
 
 | Role | Concern | Applied | Origin |
 |------|---------|---------|--------|
-| `bootstrap` | day-0 access: ssh key, disable password | once (`bootstrap.yml`) | own (thin) |
+| `bootstrap` | day-0: create admin user + key + passwordless sudo, lock root & password auth | once (`bootstrap.yml`, run `-u root -k`) | own |
 | `common` | baseline: packages, timezone, unattended-upgrades | always, on `all` | own |
 | `hardening` | CIS/SSH hardening + fail2ban | always, on `all` | community (devsec) + own |
 
