@@ -1,5 +1,0 @@
----
-# Connection user for this cluster's hosts. Lives in the inventory (not vars/fleet.yml)
-# because the imported k3s.orchestration plays need it at connection time. The day-0
-# bootstrap run overrides this with `-u root`.
-ansible_user: sanchpet

@@ -6,9 +6,9 @@ Brings fresh hosts into a managed state and installs k3s.
 
 | Path | Purpose |
 |------|---------|
+| `ansible.cfg` | fleet-wide `remote_user` (connection user, populates `{{ ansible_user }}`) |
 | `vars/fleet.yml` | fleet-global vars (admin user, SSH key) — identical for every cluster |
 | `inventory/<cluster>/hosts.ini` | per-cluster topology (`server`/`agent`/`k3s_cluster`) |
-| `inventory/<cluster>/group_vars/all.yml` | per-cluster connection user |
 | `inventory/<cluster>/group_vars/k3s_cluster.yml` | per-cluster k3s vars (version, server config) |
 | `roles/bootstrap` | day-0: create admin user + key + passwordless sudo, lock root |
 | `roles/common` | baseline (packages, timezone, unattended-upgrades) |
