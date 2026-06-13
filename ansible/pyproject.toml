@@ -1,7 +1,7 @@
 [project]
-name = "homelab"
+name = "homelab-ansible"
 version = "0"
-description = "Personal infrastructure: Ansible + Flux GitOps + Terraform"
+description = "Ansible toolchain (Layer 1) for the homelab repo"
 requires-python = ">=3.11"
 dependencies = []
 

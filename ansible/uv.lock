@@ -313,7 +313,7 @@ wheels = [
 ]
 
 [[package]]
-name = "homelab"
+name = "homelab-ansible"
 version = "0"
 source = { virtual = "." }
 
