@@ -1,0 +1,22 @@
+---
+# Variables for the k3s_cluster group. Kept out of the inventory file on purpose
+# (topology vs variables separation). Committed — no secrets here.
+ansible_user: root
+
+# Public SSH key for the bootstrap role (uploads the key, then disables passwords).
+# A public key is not a secret; uncomment and set yours:
+# ssh_public_key: "ssh-ed25519 AAAA... you@host"
+
+# k3s version — bump to a recent stable (https://github.com/k3s-io/k3s/releases).
+k3s_version: v1.33.4+k3s1
+api_endpoint: "{{ hostvars[groups['server'][0]]['ansible_host'] }}"
+
+# token intentionally omitted: a single server auto-generates one. For multi-node,
+# set `token` here under ansible-vault (openssl rand -base64 64).
+
+# Server config (/etc/rancher/k3s/config.yaml): disable Traefik (ingress comes from
+# the GitOps catalog), make the kubeconfig world-readable.
+server_config_yaml: |
+  disable:
+    - traefik
+  write-kubeconfig-mode: "0644"
