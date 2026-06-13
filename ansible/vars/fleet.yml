@@ -1,0 +1,9 @@
+---
+# Fleet-global variables — identical across every cluster. Loaded via vars_files by
+# the playbooks that need them (bootstrap), so they aren't duplicated per cluster.
+
+# Admin user the bootstrap role creates (overrides the role default `admin`).
+bootstrap_admin_user: sanchpet
+
+# Operator's public SSH key — installed for the admin user. A public key is not a secret.
+ssh_public_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII4Ekg6KZNE4QcW8gfgKVC824nLDLBALRkZmuyByDbtg sanchpet@mac-air"

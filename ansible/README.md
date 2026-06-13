@@ -1,25 +1,38 @@
 # Ansible — Layer 1 (node bootstrap)
 
-Brings a fresh host into a managed state and installs k3s.
+Brings fresh hosts into a managed state and installs k3s.
 
 ## Layout
 
 | Path | Purpose |
 |------|---------|
-| `inventory/hosts.ini` | topology only (groups, hosts, `ansible_host`) |
-| `inventory/group_vars/all.yml` | vars for every host (admin user, SSH key) |
-| `inventory/group_vars/k3s_cluster.yml` | k3s cluster vars (version, server config) |
+| `vars/fleet.yml` | fleet-global vars (admin user, SSH key) — identical for every cluster |
+| `inventory/<cluster>/hosts.ini` | per-cluster topology (`server`/`agent`/`k3s_cluster`) |
+| `inventory/<cluster>/group_vars/all.yml` | per-cluster connection user |
+| `inventory/<cluster>/group_vars/k3s_cluster.yml` | per-cluster k3s vars (version, server config) |
 | `roles/bootstrap` | day-0: create admin user + key + passwordless sudo, lock root |
 | `roles/common` | baseline (packages, timezone, unattended-upgrades) |
 | `roles/hardening` | `devsec.hardening` (CIS/SSH) + fail2ban |
 | `playbooks/bootstrap.yml` | day-0 (run once, as root) |
 | `playbooks/site.yml` | steady-state (common + hardening + k3s) |
 
+## Multi-cluster
+
+The `k3s.orchestration` collection hardcodes the group names `server`/`agent`/
+`k3s_cluster`, so **each cluster is its own inventory directory**. Pass it explicitly:
+
+```bash
+ansible-playbook -i inventory/<cluster>/ playbooks/site.yml
+```
+
+Per-cluster vars (k3s version, server config) live in that cluster's `group_vars/`;
+fleet-global vars (SSH key, admin user) live once in `vars/fleet.yml`. Mirrors the
+Flux `kubernetes/clusters/<cluster>/` layout.
+
 ## Prerequisites
 
 Tooling is managed with mise + uv. The repo-root `mise.toml` provides the cluster
-binaries; `ansible/mise.toml` adds Python + uv. mise merges both when you `cd` here,
-so a single `mise install` from this directory installs everything.
+binaries; `ansible/mise.toml` adds Python + uv. mise merges both when you `cd` here.
 
 ```bash
 cd ansible
@@ -27,7 +40,7 @@ mise install     # python, uv (this layer) + sops, age, kubectl, flux (root, mer
 mise run deps    # uv sync + ansible-galaxy install -r requirements.yml
 ```
 
-Then set the host IP in `inventory/hosts.ini` (replace `REPLACE_WITH_IP`).
+Then set `ansible_host` in `inventory/<cluster>/hosts.ini`.
 
 ## 1. Day-0 bootstrap — run ONCE, as root (special invocation)
 
@@ -36,7 +49,7 @@ steady-state `sanchpet`), creates the admin user with the SSH key and passwordle
 sudo, then disables root SSH login and password authentication.
 
 ```bash
-ansible-playbook playbooks/bootstrap.yml -u root -k
+ansible-playbook -i inventory/ips-usa-vps-2/ playbooks/bootstrap.yml -u root -k
 ```
 
 - `-u root` — overrides the steady-state `ansible_user` (sanchpet) **for this run only**.
@@ -51,7 +64,7 @@ After this completes, **root SSH is disabled** — do not run bootstrap as root 
 ## 2. Steady-state — key-based, as the admin user
 
 ```bash
-ansible-playbook playbooks/site.yml
+ansible-playbook -i inventory/ips-usa-vps-2/ playbooks/site.yml
 ```
 
 Runs baseline + hardening on all hosts, then installs k3s on the server node(s) via

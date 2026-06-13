@@ -8,5 +8,7 @@
 - name: Day-0 bootstrap (make hosts manageable)
   hosts: all
   become: true
+  vars_files:
+    - ../vars/fleet.yml
   roles:
     - bootstrap
