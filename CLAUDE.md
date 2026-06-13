@@ -7,7 +7,7 @@
 
 ### 1. PR
 
-- Create feature branch from `master`
+- Create feature branch from `main`
 - Commit changes (small, focused commits with `--signoff`)
 - Push branch, create draft PR via `gh pr create --draft`
 - Wait for CI
