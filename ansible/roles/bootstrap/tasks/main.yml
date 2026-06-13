@@ -1,6 +1,6 @@
 ---
-# Day-0 first-contact: сделать свежий хост управляемым. ТОЛЬКО начальный доступ.
-# Baseline → роль common. Безопасность → роль hardening.
+# Day-0 first-contact: make a fresh host manageable. INITIAL ACCESS ONLY.
+# Baseline → common role. Security → hardening role.
 - name: Authorize SSH public key for the connection user
   ansible.posix.authorized_key:
     user: "{{ ansible_user }}"

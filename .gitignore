@@ -1,11 +1,11 @@
 # --- Ansible ---
-# Реальный inventory держим вне git по умолчанию (IP не секрет, но в нём могут
-# случайно оказаться connection-данные). Коммить hosts.example.yml.
+# Keep the real inventory out of git by default (the IP is not a secret, but
+# connection data may slip in). Commit hosts.example.yml.
 ansible/inventory/hosts.yml
 ansible/roles/external/
 *.retry
 
-# --- SOPS / age private keys (НИКОГДА в git) ---
+# --- SOPS / age private keys (NEVER in git) ---
 *.agekey
 *.age.key
 age.key
@@ -15,7 +15,7 @@ age.key
 .vault-pass
 .vault-password
 
-# --- kubeconfig, вытянутый с узла ---
+# --- kubeconfig fetched from the node ---
 kubernetes/kubeconfig/
 ansible/kubeconfig/
 

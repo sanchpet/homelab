@@ -1,14 +1,14 @@
 # Layer 0 — Provisioning (Terraform / OpenTofu)
 
-Пока не используется: текущий VPS создан вручную.
+Not used yet: the current VPS was provisioned manually.
 
-Сюда добавятся провайдер-модули, когда понадобится **декларативное
-переразвёртывание** инфраструктуры (требует, чтобы у провайдера VPS был API).
+Provider modules will land here once declarative **re-provisioning** is needed
+(requires the VPS provider to expose an API).
 
-Структура (когда дойдём):
+Structure (when we get there):
 
 ```
 terraform/
-  modules/        # свои переиспользуемые модули
-  live/           # окружения; зовут modules/ + community (pinned source+version)
+  modules/        # own reusable modules
+  live/           # environments; call modules/ + community (pinned source+version)
 ```

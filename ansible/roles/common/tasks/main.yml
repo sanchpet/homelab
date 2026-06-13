@@ -1,6 +1,6 @@
 ---
-# Baseline для всех хостов. Домен тривиальный → свои таски (community-роль избыточна).
-# Точки подключения community при росте: geerlingguy.ntp/swap и т.п.
+# Baseline for all hosts. Trivial domain → own tasks (a community role is overkill).
+# Community hook points as this grows: geerlingguy.ntp/swap, etc.
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: true

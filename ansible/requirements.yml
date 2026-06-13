@@ -1,14 +1,14 @@
-# Community-зависимости — пинятся здесь, не вендорятся в репо.
-# Установка:  ansible-galaxy install -r requirements.yml
+# Community dependencies — pinned here, not vendored into the repo.
+# Install:  ansible-galaxy install -r requirements.yml
 collections:
   - name: kubernetes.core
     version: ">=6.4.0"
   - name: ansible.posix
     version: ">=2.2.0"
-  # База для роли hardening (CIS/NSA, battle-tested). Major запинен — мажор может ломать.
+  # Base for the hardening role (CIS/NSA, battle-tested). Major pinned — majors may break.
   - name: devsec.hardening
     version: ">=10.6.0,<11.0.0"
-  # Официальная k3s-роль (k3s team, @dereknola, maintained). Git-источник, пин на тег.
+  # Official k3s role (k3s team, @dereknola, maintained). Git source, pinned to a tag.
   - name: https://github.com/k3s-io/k3s-ansible.git
     type: git
     version: "1.2.1"

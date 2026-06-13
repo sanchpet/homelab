@@ -38,5 +38,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate manifests (placeholder)
         run: |
-          # TODO: подключить kubeconform, когда в kubernetes/ появятся манифесты
-          echo "kubeconform будет валидировать манифесты по мере наполнения"
+          # TODO: wire up kubeconform once kubernetes/ has manifests
+          echo "kubeconform will validate manifests as they are added"

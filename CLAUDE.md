@@ -1,48 +1,58 @@
-# homelab — инструкции для Claude Code
+# homelab — instructions for Claude Code
 
-> Монорепо управления личной инфраструктурой: `ansible/` (Layer 1) + `kubernetes/`
-> Flux (Layer 2) + `terraform/` (Layer 0, позже).
+> Monorepo for personal infrastructure: `ansible/` (Layer 1) + `kubernetes/` Flux
+> (Layer 2) + `terraform/` (Layer 0, later).
 
-## Принцип: community-first для ролей и модулей (БЛОКИРУЮЩЕЕ)
+## Workflow
 
-**Где есть battle-tested community-роль / модуль / коллекция / helm-чарт — берём её
-за основу и расширяем своими тасками/патчами/overlay. Не хэндролим то, что комьюнити
-уже поддерживает.**
+### 1. PR
 
-- **Сложный/типовой домен** (харднинг, мониторинг, cert-manager, БД, ingress) →
-  community-база, **пин версии** (`requirements.yml` / terraform `version`). Свои
-  отличия — отдельными тасками поверх (`import_role` + own tasks), не форком.
-- **Тривиальный домен** (baseline-пакеты, day-0 доступ) → свои тонкие таски; не
-  тащить community ради галочки.
-- **Перед хэндроллом** проверить, есть ли поддерживаемая community-альтернатива
-  (и что она НЕ заброшена — урок xanmanning.k3s).
-- Своё выносим в отдельный репо только под осознанную OSS-публикацию (позже).
+- Create feature branch from `master`
+- Commit changes (small, focused commits with `--signoff`)
+- Push branch, create draft PR via `gh pr create --draft`
+- Wait for CI
 
-**Эталон в репо:** роль `hardening` импортирует `devsec.hardening.os_hardening` +
-`ssh_hardening` (community-база) и поверх добавляет fail2ban + override
-`net.ipv4.ip_forward=1` (k3s/VPN требуют форвардинг, devsec его глушит). Роли
-`bootstrap` (day-0) и `common` (baseline) — свои, домен тривиальный.
+## Principle: community-first for roles and modules (BLOCKING)
 
-## Роли Ansible
+**Where a battle-tested community role / module / collection / helm chart exists, take
+it as the base and extend it with your own tasks/patches/overlays. Do not hand-roll
+what the community already maintains.**
 
-| Роль | Concern | Применяется | Происхождение |
-|------|---------|-------------|---------------|
-| `bootstrap` | day-0 доступ: ssh-ключ, отключить пароль | один раз (`bootstrap.yml`) | своё (тонкое) |
-| `common` | baseline: пакеты, timezone, unattended-upgrades | всегда, на `all` | своё |
-| `hardening` | CIS/SSH-харднинг + fail2ban | всегда, на `all` | community (devsec) + своё |
+- **Complex/standard domain** (hardening, monitoring, cert-manager, DBs, ingress) →
+  community base, **pin the version** (`requirements.yml` / terraform `version`). Own
+  differences go as extra tasks on top (`import_role` + own tasks), not a fork.
+- **Trivial domain** (baseline packages, day-0 access) → thin own tasks; don't pull in
+  community for its own sake.
+- **Before hand-rolling**, check for a maintained community alternative (and that it is
+  NOT abandoned — the xanmanning.k3s lesson).
+- Extract your own code into a separate repo only for a deliberate OSS release (later).
 
-> **k3s — не своя роль.** Установка через официальную коллекцию `k3s.orchestration`
-> (k3s team, maintained), пин тега в `requirements.yml`, конфиг — в inventory
-> (`server_config_yaml`). Прецедент: своя k3s-роль была отброшена как нарушение
-> community-first (официальная коллекция оказалась maintained и консумится).
+**Reference in this repo:** the `hardening` role imports `devsec.hardening.os_hardening`
++ `ssh_hardening` (community base) and adds fail2ban + an override of
+`net.ipv4.ip_forward=1` on top (k3s/VPN need forwarding, devsec disables it). The
+`bootstrap` (day-0) and `common` (baseline) roles are own — trivial domain.
 
-## Секреты
+## Ansible roles
 
-Только **SOPS** (age), ключ на кластер (`.sops.yaml`). IP / домены / порты —
-**публичны** (контроль = харднинг узла, не сокрытие). Секрет-в-маскировке (токенные
-URL, bootstrap/node-токены) — в vault, хоть и выглядит как config.
+| Role | Concern | Applied | Origin |
+|------|---------|---------|--------|
+| `bootstrap` | day-0 access: ssh key, disable password | once (`bootstrap.yml`) | own (thin) |
+| `common` | baseline: packages, timezone, unattended-upgrades | always, on `all` | own |
+| `hardening` | CIS/SSH hardening + fail2ban | always, on `all` | community (devsec) + own |
 
-## Мульти-кластер
+> **k3s is not an own role.** Installed via the official `k3s.orchestration` collection
+> (k3s team, maintained), tag pinned in `requirements.yml`, configured through the
+> inventory (`server_config_yaml`). Precedent: an own k3s role was dropped as a
+> community-first violation (the official collection turned out to be maintained and
+> consumable).
 
-Кластер = `kubernetes/clusters/<имя>/` + свой `flux bootstrap --path=...` +
-`infrastructure|apps/{base,<кластер>}` (Kustomize) + SOPS-ключ на кластер.
+## Secrets
+
+Only **SOPS** (age), one key per cluster (`.sops.yaml`). IPs / domains / ports are
+**public** (the control is node hardening, not obscurity). A secret-in-disguise
+(tokenized URLs, bootstrap/node tokens) goes into the vault even though it looks like config.
+
+## Multi-cluster
+
+A cluster = `kubernetes/clusters/<name>/` + its own `flux bootstrap --path=...` +
+`infrastructure|apps/{base,<cluster>}` (Kustomize) + one SOPS key per cluster.

@@ -1,32 +1,32 @@
 # homelab
 
-Монорепо управления личной инфраструктурой. Три слоя IaC:
+Monorepo for managing personal infrastructure. Three IaC layers:
 
-| Слой | Что | Чем | Каталог |
-|------|-----|-----|---------|
-| **Layer 0** | провижининг VPS | Terraform/OpenTofu (позже) | `terraform/` |
-| **Layer 1** | bootstrap узла: OS-prep + k3s | Ansible | `ansible/` |
-| **Layer 2** | состояние кластера: инфра + приложения | Flux GitOps | `kubernetes/` |
+| Layer | What | With | Directory |
+|-------|------|------|-----------|
+| **Layer 0** | VPS provisioning | Terraform/OpenTofu (later) | `terraform/` |
+| **Layer 1** | node bootstrap: OS prep + k3s | Ansible | `ansible/` |
+| **Layer 2** | cluster state: infra + apps | Flux GitOps | `kubernetes/` |
 
-## Мульти-кластер
+## Multi-cluster
 
-Каждый кластер — папка `kubernetes/clusters/<имя>/` со своим bootstrap-путём:
+Each cluster is a `kubernetes/clusters/<name>/` directory with its own bootstrap path:
 
 ```bash
 flux bootstrap github --owner=<owner> --repository=homelab \
   --path=kubernetes/clusters/vps-stand
 ```
 
-Flux каждого кластера реконсайлит только свой путь. `infrastructure/` и `apps/`
-организованы как `base/` (переиспользуемое) + `<кластер>/` (overlay, Kustomize).
+Each cluster's Flux reconciles only its own path. `infrastructure/` and `apps/` are
+organized as `base/` (reusable) + `<cluster>/` (overlay, Kustomize).
 
-## Секреты
+## Secrets
 
-Настоящие секреты — только через **SOPS** (age), правила в `.sops.yaml` (ключ на
-кластер). Всё остальное (IP, домены, порты, топология) — публично: компенсирующий
-контроль — харднинг узла, не сокрытие. Подробнее — в политике безопасности проекта.
+Real secrets only via **SOPS** (age), rules in `.sops.yaml` (one key per cluster).
+Everything else (IPs, domains, ports, topology) is public: the compensating control
+is node hardening, not obscurity.
 
-## Слои-зависимости
+## Dependency layers
 
-- Свои роли/модули — в этом репо (`ansible/roles/`, `terraform/modules/`).
-- Community — пины (`ansible/requirements.yml`, terraform `version`), не вендорим.
+- Own roles/modules live in this repo (`ansible/roles/`, `terraform/modules/`).
+- Community ones are pinned (`ansible/requirements.yml`, terraform `version`), not vendored.
