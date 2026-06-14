@@ -1,0 +1,18 @@
+---
+# ClusterIP for the 3x-ui panel — internal only (NOT exposed to the host/internet).
+# Stable target for reaching the panel:
+#   VPN on:  kubectl port-forward -n vpn svc/3x-ui-panel 2053:2053
+#   VPN off: ssh -L 2053:<this-clusterIP>:2053 <node>   (one hop; node reaches ClusterIP)
+apiVersion: v1
+kind: Service
+metadata:
+  name: 3x-ui-panel
+  namespace: vpn
+spec:
+  type: ClusterIP
+  selector:
+    app: 3x-ui
+  ports:
+    - name: panel
+      port: 2053
+      targetPort: 2053

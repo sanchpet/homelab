@@ -1,7 +1,11 @@
 ---
-# 3x-ui — Xray panel (VLESS/Reality etc). Userspace proxy: no TUN/privileged needed
-# (unlike anylink). hostNetwork so configured inbounds bind the node's public ports
-# directly. Persistence via PVC (local-path) for the config DB and certs.
+# 3x-ui — Xray panel (VLESS/Reality etc). Userspace proxy: no TUN/privileged needed.
+# Pod network (NOT hostNetwork): only the Reality inbound (443) is published to the
+# host via hostPort. The panel (2053) stays on the pod network → not publicly exposed;
+# reach it via the ClusterIP service (svc/3x-ui-panel) with kubectl port-forward (VPN
+# on) or an SSH tunnel to the service IP (VPN off). Persistence via PVC (local-path).
+# Note: hostPort uses the portmap CNI plugin; client source IP may be SNAT'd to the
+# node IP (fine for Reality). New inbound ports must be added here as hostPorts.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -21,11 +25,15 @@ spec:
       labels:
         app: 3x-ui
     spec:
-      hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: 3x-ui
           image: ghcr.io/mhsanaei/3x-ui:v3.3.1
+          ports:
+            - name: reality
+              containerPort: 443
+              hostPort: 443          # published to the node (public) — the VPN inbound
+            - name: panel
+              containerPort: 2053     # pod-network only (no hostPort) — not public
           env:
             - name: XUI_ENABLE_FAIL2BAN
               value: "true"
