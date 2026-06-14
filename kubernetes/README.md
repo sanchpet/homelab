@@ -79,14 +79,45 @@ A second cluster reuses the same base + components, differing by a single line
 > some clusters but not others). Until then overlays just list base — no premature
 > structure.
 
-## Multi-cluster
+## Bootstrap
 
-Each cluster is bootstrapped to its own path:
+Each cluster is bootstrapped to its own path. Flux installs its controllers, commits
+its own manifests under `clusters/<name>/flux-system/`, and starts reconciling.
+
+A GitHub PAT is required (fine-grained, this repo only, **Contents: RW** +
+**Administration: RW** for the deploy key):
 
 ```bash
-flux bootstrap github --owner=<owner> --repository=homelab \
-  --path=kubernetes/clusters/<name>
+export GITHUB_USER=<owner>
+export GITHUB_TOKEN=<pat>
+flux check --pre
+flux bootstrap github --owner=<owner> --repository=homelab --branch=main --path=kubernetes/clusters/<name> --personal
 ```
 
+After it completes Flux pushes a commit to `main` (`git pull` to sync). The PAT can be
+revoked afterwards — Flux uses the deploy key it created.
+
+### Bootstrapping from the node (when the workstation can't reach the API reliably)
+
+If the workstation's link to the API server is slow or unstable, bootstrap **from the
+node itself**, where the API is local (`127.0.0.1:6443`) and the discovery/openapi
+fetch is instant. Flux controllers run in-cluster afterwards, so the workstation link
+no longer matters for reconciliation.
+
+```bash
+# on the node
+curl -s https://fluxcd.io/install.sh | sudo bash      # install flux CLI
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml            # local kubeconfig (k3s)
+export GITHUB_USER=<owner>
+export GITHUB_TOKEN=<pat>
+flux check --pre
+flux bootstrap github --owner=<owner> --repository=homelab --branch=main --path=kubernetes/clusters/<name> --personal
+```
+
+Verify: `flux get kustomizations` (all `Ready=True`) and `kubectl -n flux-system get pods`.
+
+## Multi-cluster
+
 Flux for each cluster reconciles only its own `clusters/<name>/` tree. Mirrors the
-`ansible/inventory/<cluster>/` layout.
+`ansible/inventory/<cluster>/` layout. Add a cluster = new `clusters/<name>/` +
+`infrastructure/<name>/` + `apps/<name>/`, then bootstrap to that path.
