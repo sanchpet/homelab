@@ -1,0 +1,13 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: sub-vps-2-tls
+  namespace: nginx-gateway
+spec:
+  secretName: sub-vps-2-tls
+  dnsNames:
+    - sub.vps-2.usa.ips.sanch.pet
+  issuerRef:
+    name: letsencrypt-staging   # TODO: switch to letsencrypt-prod once the pipeline is verified
+    kind: ClusterIssuer
