@@ -1,7 +1,7 @@
 ---
 # 3x-ui — Xray panel (VLESS/Reality etc). Userspace proxy: no TUN/privileged needed
 # (unlike anylink). hostNetwork so configured inbounds bind the node's public ports
-# directly. Single node → hostPath persistence for the config DB and certs.
+# directly. Persistence via PVC (local-path) for the config DB and certs.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -25,7 +25,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: 3x-ui
-          image: ghcr.io/mhsanaei/3x-ui:latest   # TODO: pin a version once chosen
+          image: ghcr.io/mhsanaei/3x-ui:v3.3.1
           env:
             - name: XUI_ENABLE_FAIL2BAN
               value: "true"
@@ -42,10 +42,8 @@ spec:
               memory: 256Mi
       volumes:
         - name: db
-          hostPath:
-            path: /var/lib/3x-ui/db
-            type: DirectoryOrCreate
+          persistentVolumeClaim:
+            claimName: 3x-ui-db
         - name: cert
-          hostPath:
-            path: /var/lib/3x-ui/cert
-            type: DirectoryOrCreate
+          persistentVolumeClaim:
+            claimName: 3x-ui-cert
