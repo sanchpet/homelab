@@ -1,0 +1,28 @@
+---
+# Config DB (/etc/x-ui/x-ui.db): users, inbounds, Reality keys, settings, stats.
+# Losing it wipes all VPN config → clients break. Essential.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: 3x-ui-db
+  namespace: vpn
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi
+---
+# TLS certs (/root/cert). Not needed for VLESS-Reality, but kept for cert-based
+# inbounds / panel TLS later.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: 3x-ui-cert
+  namespace: vpn
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 256Mi
