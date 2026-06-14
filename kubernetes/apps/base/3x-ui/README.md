@@ -49,3 +49,20 @@ VPN required to fix the VPN.
 Pinned to `ghcr.io/mhsanaei/3x-ui:v3.3.1`. No official Helm chart exists (upstream ships
 a Docker image + compose only), and the app is trivial → a thin manifest is the right
 wrapper (community-first: we consume the official image, we don't hand-roll the app).
+
+## Subscriptions (behind the Gateway)
+
+The 3x-ui subscription server runs on pod port 2096 (`xui-sub` ClusterIP). It is fronted
+by the cluster Gateway: a `Certificate` (Let's Encrypt, cert-manager) on the Gateway's
+HTTPS:8443 listener for `sub.vps-2.usa.ips.sanch.pet`, and an `HTTPRoute` forwarding that
+hostname to `xui-sub:2096`. TLS terminates at the Gateway; the sub server itself is plain
+HTTP inside the cluster. xray Reality keeps hostPort 443 — the sub is on a separate port.
+
+**Generated sub-link URL:** 3x-ui builds the subscription URL from its own sub settings
+and is unaware of the reverse proxy, so it would emit the internal `:2096`. Fix it in
+**Panel Settings → Subscription → `Reverse Proxy URI`**: set it to the public URL
+(`https://sub.vps-2.usa.ips.sanch.pet:8443/<path>`). Then generated links point at the
+Gateway, not the internal port. (No port-alignment hacks needed.)
+
+To bring the sub up: enable Subscription in the panel (port 2096), set the Reverse Proxy
+URI, and the `xui-sub` Service + `HTTPRoute` (in Git) do the rest.
