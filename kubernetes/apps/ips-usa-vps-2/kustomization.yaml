@@ -1,9 +1,9 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-resources: []
-  # Phase 1 smoke — a trivial service to verify the GitOps loop, then:
-  # - ../base/sandbox
-  # Phase 2 — VPN workloads:
-  # - ../base/3x-ui
+resources:
+  - ../base/3x-ui
+  # Phase 2 — remaining VPN workload:
   # - ../base/anylink
+  # Sandbox for learning projects:
+  # - ../base/sandbox
