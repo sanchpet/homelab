@@ -14,9 +14,10 @@
 
 ### 2. Merge
 
-- **Do NOT self-merge.** After CI is green, hand the PR back to the owner for review and
-  wait for an explicit go-ahead ("merge it" / "мержи") before merging. Creating and
-  pushing the PR is fine; merging is the owner's call.
+- **Do NOT self-merge.** Creating and pushing the PR is fine; merging is the owner's call.
+  After CI is green, **send the owner the direct PR link and ask whether to merge or if
+  they have comments.** Wait for an explicit go-ahead ("merge it" / "мержи") before
+  merging. Always include the clickable PR URL when reporting a PR.
 - When approved, merge with **`gh pr merge --squash`** (not `--rebase`). Rebase-merge
   rewrites commits and strips the local commit signature → GitHub shows them
   **Unverified**. Squash lets GitHub sign the resulting commit → **Verified**, and keeps
