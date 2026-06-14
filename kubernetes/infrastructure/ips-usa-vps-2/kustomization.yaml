@@ -1,8 +1,7 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-resources: []
-  # Uncomment as base/ gets filled in (Phase 1 → Phase 2):
-  # - ../base/cert-manager
-  # - ../base/ingress-nginx
-  # - ../base/system-upgrade-controller
+resources:
+  - ../base/gateway-api
+  - ../base/cert-manager
+  - ../base/nginx-gateway-fabric
