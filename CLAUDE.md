@@ -12,6 +12,13 @@
 - Push branch, create draft PR via `gh pr create --draft`
 - Wait for CI
 
+### 2. Merge
+
+- Merge with **`gh pr merge --squash`** (not `--rebase`). Rebase-merge rewrites commits
+  and strips the local commit signature → GitHub shows them **Unverified**. Squash lets
+  GitHub sign the resulting commit → **Verified**, and keeps history linear. See
+  PACK-devops DEVOPS.FM.011.
+
 ## Principle: community-first for roles and modules (BLOCKING)
 
 **Where a battle-tested community role / module / collection / helm chart exists, take

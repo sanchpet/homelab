@@ -2,7 +2,7 @@
 # 3x-ui — Xray panel (VLESS/Reality etc). Userspace proxy: no TUN/privileged needed.
 # Pod network (NOT hostNetwork): only the Reality inbound (443) is published to the
 # host via hostPort. The panel (2053) stays on the pod network → not publicly exposed;
-# reach it via the ClusterIP service (svc/3x-ui-panel) with kubectl port-forward (VPN
+# reach it via the ClusterIP service (svc/xui-panel) with kubectl port-forward (VPN
 # on) or an SSH tunnel to the service IP (VPN off). Persistence via PVC (local-path).
 # Note: hostPort uses the portmap CNI plugin; client source IP may be SNAT'd to the
 # node IP (fine for Reality). New inbound ports must be added here as hostPorts.

@@ -1,12 +1,13 @@
 ---
 # ClusterIP for the 3x-ui panel — internal only (NOT exposed to the host/internet).
+# Name must start with a letter (Service = DNS-1035 label), so not "3x-ui-panel".
 # Stable target for reaching the panel:
-#   VPN on:  kubectl port-forward -n vpn svc/3x-ui-panel 2053:2053
+#   VPN on:  kubectl port-forward -n vpn svc/xui-panel 2053:2053
 #   VPN off: ssh -L 2053:<this-clusterIP>:2053 <node>   (one hop; node reaches ClusterIP)
 apiVersion: v1
 kind: Service
 metadata:
-  name: 3x-ui-panel
+  name: xui-panel
   namespace: vpn
 spec:
   type: ClusterIP
