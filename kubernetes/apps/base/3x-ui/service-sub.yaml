@@ -1,0 +1,17 @@
+---
+# ClusterIP for the 3x-ui subscription server (port 2096). Fronted by the Gateway
+# (HTTPRoute) for TLS; not exposed to the host directly. Enable the sub server in the
+# 3x-ui panel (Settings → Subscription, port 2096) for this to have a backend.
+apiVersion: v1
+kind: Service
+metadata:
+  name: xui-sub
+  namespace: vpn
+spec:
+  type: ClusterIP
+  selector:
+    app: 3x-ui
+  ports:
+    - name: sub
+      port: 2096
+      targetPort: 2096

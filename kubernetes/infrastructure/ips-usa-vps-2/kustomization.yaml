@@ -5,3 +5,7 @@ resources:
   - ../base/gateway-api
   - ../base/cert-manager
   - ../base/nginx-gateway-fabric
+  - gateway.yaml
+  - certificate.yaml
+components:
+  - ../components/letsencrypt
