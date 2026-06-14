@@ -17,8 +17,15 @@ flux bootstrap github --owner=<owner> --repository=homelab \
   --path=kubernetes/clusters/ips-usa-vps-2
 ```
 
-Each cluster's Flux reconciles only its own path. `infrastructure/` and `apps/` are
-organized as `base/` (reusable) + `<cluster>/` (overlay, Kustomize).
+Each cluster's Flux reconciles only its own path.
+
+## GitOps structure (Layer 2)
+
+Canonical Flux layout (`clusters/` + `infrastructure/` + `apps/` with `dependsOn`
+ordering) **plus Kustomize Components** for à-la-carte feature composition — the
+"third path": canonical ordering and a single monorepo, with brainfair-style
+menu composition but native and without a second repo. Details, including the
+base / overlay / component distinction: [`kubernetes/README.md`](kubernetes/README.md).
 
 ## Secrets
 
