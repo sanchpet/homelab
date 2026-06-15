@@ -5,6 +5,7 @@ resources:
   - ../base/gateway-api
   - ../base/cert-manager
   - ../base/nginx-gateway-fabric
+  - ../base/reloader
   - gateway.yaml
   - certificate.yaml
 components:

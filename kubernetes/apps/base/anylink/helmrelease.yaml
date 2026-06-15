@@ -21,6 +21,10 @@ spec:
       anylink:
         type: deployment
         strategy: Recreate
+        annotations:
+          # Auto-restart when the mounted secret/configmap/cert changes (admin_pass,
+          # server.toml, anylink-tls renewal). Requires stakater Reloader.
+          reloader.stakater.com/auto: "true"
         pod:
           # OpenConnect SSL-VPN: routes + NATs client traffic on the host → hostNetwork.
           hostNetwork: true
