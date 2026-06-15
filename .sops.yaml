@@ -5,3 +5,8 @@ creation_rules:
   - path_regex: kubernetes/.*\.sops\.ya?ml$
     encrypted_regex: ^(data|stringData)$
     age: age1ayd37q6cyqrh2d2jgz04jx0guxmj483d0tchhqd6sd83ukcf4vusm4p63q
+  # terraform/ panel credentials (3x-ui admin user/pass + webBasePath). Plain YAML keys,
+  # so encrypt the values by key name. Same age key (private key in the owner's pw manager).
+  - path_regex: terraform/.*\.sops\.ya?ml$
+    encrypted_regex: ^(base_path|username|password)$
+    age: age1ayd37q6cyqrh2d2jgz04jx0guxmj483d0tchhqd6sd83ukcf4vusm4p63q

@@ -19,8 +19,9 @@ age.key
 kubernetes/kubeconfig/
 ansible/kubeconfig/
 
-# --- Terraform ---
+# --- Terraform / OpenTofu / Terragrunt ---
 terraform/**/.terraform/
+terraform/**/.terragrunt-cache/
 terraform/**/*.tfstate
 terraform/**/*.tfstate.backup
 terraform/**/*.tfvars
