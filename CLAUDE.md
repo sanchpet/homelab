@@ -3,6 +3,10 @@
 > Monorepo for personal infrastructure: `ansible/` (Layer 1) + `kubernetes/` Flux
 > (Layer 2) + `terraform/` (Layer 0, later).
 
+**Language (BLOCKING):** every repo artifact — code, comments, docs/READMEs, commit
+messages, and PR titles/descriptions — is written in **English**. Chat may be in any
+language; what lands in the repo or on GitHub is English.
+
 ## Workflow
 
 ### 1. PR
