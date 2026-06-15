@@ -13,7 +13,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./kubernetes/apps/ips-usa-vps-2
+  path: ./kubernetes/apps/clusters/ips-usa-vps-2
   prune: true
   wait: true
   decryption:

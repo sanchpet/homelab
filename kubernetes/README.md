@@ -8,23 +8,29 @@ plus **Kustomize Components** for à-la-carte composition (the "third path", bel
 
 ```
 kubernetes/
-  clusters/<name>/          # Flux wiring for one cluster (NOT manifests)
+  clusters/<name>/          # Flux WIRING for one cluster (Kustomization CRs, not manifests)
     flux-system/            #   gotk components + sync (written by `flux bootstrap`)
     infra-crds.yaml         #   Flux Kustomization → infrastructure/crds
-    infra-controllers.yaml  #   → infrastructure/controllers (dependsOn: infra-crds)
-    infra-configs.yaml      #   → infrastructure/<name>     (dependsOn: infra-controllers)
-    apps.yaml               #   → apps/<name>               (dependsOn: infra-configs)
+    infra-controllers.yaml  #   → infrastructure/controllers       (dependsOn: infra-crds)
+    infra-configs.yaml      #   → infrastructure/clusters/<name>   (dependsOn: infra-controllers)
+    apps.yaml               #   → apps/clusters/<name>             (dependsOn: infra-configs)
   infrastructure/
-    base/<component>/       # complete platform resources (cert-manager, NGF, gateway-api)
-    crds/                   # layer 1: CRDs only (shared)            ← infra-crds
-    controllers/            # layer 2: operators (shared)            ← infra-controllers
+    crds/<component>/       # layer 1: CRD sources (shared)          ← infra-crds
+    controllers/<component>/  # layer 2: operators (shared)          ← infra-controllers
     components/<feature>/   # reusable, optional MODIFICATIONS (issuers, ...)
-    <name>/kustomization.yaml   # layer 3: per-cluster configs (Gateway, issuers) ← infra-configs
+    clusters/<name>/        # layer 3: per-cluster configs (Gateway, issuers) ← infra-configs
   apps/
-    base/<app>/             # complete workload definitions (sandbox, 3x-ui, anylink)
+    base/<app>/             # complete workload definitions (shared, 3x-ui, anylink, ...)
     components/<feature>/   # reusable modifications (HTTPRoute wiring, ...)
-    <name>/kustomization.yaml
+    clusters/<name>/        # per-cluster app overlays (select base + cluster config/secret)
 ```
+
+> **Three `clusters/` dirs, one meaning** — "stuff for cluster `<name>`": `clusters/` (Flux
+> wiring CRs), `infrastructure/clusters/` + `apps/clusters/` (the actual manifests). The
+> parent disambiguates. Shared building blocks (`crds`, `controllers`, `components`,
+> `apps/base`) live *outside* any `clusters/` dir — so invariants and per-cluster overlays
+> never sit as siblings. Infra has no `base/`: each component lives directly under the layer
+> that owns it (`crds/gateway-api`, `controllers/cert-manager`), no thin pointer indirection.
 
 ## The three building blocks (don't confuse them)
 
@@ -37,12 +43,12 @@ kubernetes/
 Test for base vs component: *"do I want to toggle this independently and reuse it
 across components or clusters?"* → **component**. Otherwise → **base**.
 
-## clusters/ holds wiring, not manifests
+## clusters/ (top level) holds wiring, not manifests
 
-`clusters/<name>/` contains only Flux **Kustomization CRs** (pointers) + `flux-system/`.
-The actual manifests live in `infrastructure/` and `apps/`. Cluster-specific manifests
-go in the **overlay** (`infrastructure/<name>/`, `apps/<name>/`) — either as extra
-`resources:` or as `patches:` to base.
+The **top-level** `clusters/<name>/` contains only Flux **Kustomization CRs** (pointers) +
+`flux-system/`. The actual manifests live under `infrastructure/` and `apps/`.
+Cluster-specific manifests go in the per-cluster overlay (`infrastructure/clusters/<name>/`,
+`apps/clusters/<name>/`) — extra `resources:` or `patches:` to base.
 
 ## Ordering — explicit layers, not retry-until-it-works
 
