@@ -16,3 +16,7 @@ spec:
   path: ./kubernetes/apps/ips-usa-vps-2
   prune: true
   wait: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age   # age key, created out-of-band in flux-system
