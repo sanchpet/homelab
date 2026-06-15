@@ -1,0 +1,66 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: gost
+  namespace: vpn
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: gost
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      gost:
+        type: deployment
+        annotations:
+          # Restart on gost.yml (creds) or cert renewal. Requires stakater Reloader.
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: docker.io/gogost/gost
+              tag: "3.2.6"
+            # Whole config (incl. proxy auth) lives in the SOPS secret gost-config.
+            args: ["-C", "/etc/gost/gost.yml"]
+    service:
+      # LoadBalancer → k3s servicelb (klipper) publishes these on the node. Only the
+      # TLS-wrapped listeners are exposed (DPI sees plain HTTPS → not classified as a
+      # proxy → not throttled from RU). No cleartext proxy port on the public internet.
+      app:
+        controller: gost
+        type: LoadBalancer
+        ports:
+          http-tls:
+            port: 7443
+            protocol: TCP
+          socks5-tls:
+            port: 1443
+            protocol: TCP
+    persistence:
+      # gost.yml — SOPS secret (proxy auth + listener config). subPath + Reloader.
+      config:
+        type: secret
+        name: gost-config
+        advancedMounts:
+          gost:
+            app:
+              - path: /etc/gost/gost.yml
+                subPath: gost.yml
+                readOnly: true
+      # TLS cert for the wrapped listeners — cert-manager Certificate (cluster overlay).
+      tls:
+        type: secret
+        name: gost-tls
+        advancedMounts:
+          gost:
+            app:
+              - path: /etc/gost/tls
+                readOnly: true

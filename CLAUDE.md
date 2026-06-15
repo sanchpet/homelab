@@ -64,10 +64,16 @@ per-app OCIRepository pinning the chart), not raw Deployment/Service YAML — re
 the home-ops standard. Cross-cutting resources (Certificate/cert-manager,
 ExternalSecret/ESO, raw Secrets/ConfigMaps) are **sibling manifests** in the same app
 dir, composed by the Flux Kustomization — app-template owns the workload, not other
-operators' CRs. Reference: `apps/base/anylink` (app-template) + `apps/ips-usa-vps-2`
+operators' CRs. Reference: `apps/base/anylink` (app-template) + `apps/ips-usa-vps-2/anylink/`
 (its cert/config/secret). `3x-ui` is still raw Kustomize → pending migration to
 app-template for consistency. Don't mix generic-chart + raw for the *same* workload
 (the anti-pattern).
+
+**Cluster overlay layout (BLOCKING):** group per app/component, no flat prefixed files.
+`apps/<cluster>/<app>/` holds de-prefixed files (`config.yaml`, `certificate.yaml`,
+`secret.sops.yaml`) + a `kustomization.yaml` pulling in `../../base/<app>`; the cluster
+`kustomization.yaml` lists the app dirs. Same for `infrastructure/<cluster>/<component>/`.
+Never dump `app-config.yaml`/`app-certificate.yaml` flat in the cluster dir.
 
 ## Secrets
 
