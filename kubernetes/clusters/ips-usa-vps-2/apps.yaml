@@ -9,7 +9,7 @@ spec:
   retryInterval: 2m
   timeout: 5m
   dependsOn:
-    - name: infrastructure
+    - name: infra-configs
   sourceRef:
     kind: GitRepository
     name: flux-system

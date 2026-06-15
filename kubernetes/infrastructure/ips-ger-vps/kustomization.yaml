@@ -1,11 +1,10 @@
 ---
+# Layer 3 — per-cluster configs (Gateway + its cert + letsencrypt ClusterIssuers).
+# An `infra-configs` Flux Kustomization (dependsOn infra-controllers) applies these, so the
+# CRDs + cert-manager are already present.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ../base/gateway-api
-  - ../base/cert-manager
-  - ../base/nginx-gateway-fabric
-  - ../base/reloader
   - gateway
 components:
   - ../components/letsencrypt

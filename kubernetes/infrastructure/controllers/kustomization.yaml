@@ -1,0 +1,10 @@
+---
+# Layer 2 — controllers/operators. Shared by all clusters via an `infra-controllers` Flux
+# Kustomization that dependsOn `infra-crds`. cert-manager installs its own CRDs (chart);
+# NGF needs the Gateway API CRDs from the crds layer.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../base/cert-manager
+  - ../base/nginx-gateway-fabric
+  - ../base/reloader
