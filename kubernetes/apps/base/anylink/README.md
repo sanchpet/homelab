@@ -120,3 +120,32 @@ Read Keenetic's `show log`, not the server — anylink stays quiet pre-auth:
 - TLS never connects / `failed to resolve` → router DNS or the cloud firewall (confirm the
   port is open from outside first: `nc -vz <node> 4443`).
 - `Login failed` after the form → wrong VPN password or the user isn't in that group.
+- **Connects, then drops every ~35s** (`read tcp …4443→…: i/o timeout` + `link_dtls EOF`
+  in the *anylink* log, looping) → **tunnel MTU too high** (see below), not auth/DPI.
+
+## Tunnel MTU — the ~35s-disconnect trap
+
+Symptom: auth succeeds, IP is assigned, tunnel comes up — then **dies after ~35s**
+(`cstp_dpd`) and reconnects in a loop. The anylink log shows both channels timing out at
+once (`i/o timeout` on CSTP + `EOF` on DTLS) = the client went silent, because full-size
+data/DPD packets are being **blackholed** by a path MTU lower than the tunnel MTU.
+
+The client's WAN here is **PPPoE (1492)**; CSTP (TCP+TLS) overhead eats ~110 bytes →
+real path MTU through the tunnel is **~1382**. With `mtu = 1400` in `server.toml`, packets
+of 1383–1400 vanish silently (PMTUD doesn't cross the encrypted tunnel cleanly) → DPD
+can't confirm liveness → drop. Set **`mtu = 1300`** (safe margin under 1382), and relax
+DPD for the throttled RU→US path: **`cstp_dpd`/`mobile_dpd = 90`** (default 30/60 is too
+aggressive when the foreign leg is lossy).
+
+Measure the real ceiling from a device behind the router (ping the tunnel gateway with
+DF set, increasing size — the router returns `frag needed and DF set (MTU NNNN)` at the
+limit):
+
+```bash
+ping -D -s 1272 10.99.99.1     # 1300-byte packet — passes
+ping -D -s 1372 10.99.99.1     # 1400-byte packet — "frag needed ... (MTU 1382)"
+```
+
+Then keep the anylink `mtu` comfortably below that number. (ICMP may show loss even at a
+passing size — it's deprioritized on the foreign leg; the real test is whether the TCP
+session survives past the old ~35s mark.)

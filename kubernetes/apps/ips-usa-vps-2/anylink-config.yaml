@@ -30,10 +30,10 @@ data:
     ip_lease = 86400
     default_group = "all"
     cstp_keepalive = 4
-    cstp_dpd = 30
+    cstp_dpd = 90                      # was 30 — too aggressive for the throttled RU→US path
     mobile_keepalive = 4
-    mobile_dpd = 60
-    mtu = 1400
+    mobile_dpd = 90                    # was 60
+    mtu = 1300                         # was 1400 — PPPoE 1492 + TLS/DTLS encap blackholes large pkts
     default_domain = "anylink.vps-2.usa.ips.sanch.pet"
     idle_timeout = 0
     session_timeout = 3600
