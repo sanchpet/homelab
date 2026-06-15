@@ -54,10 +54,14 @@ platform (CRDs, cert-manager, gateway) is reconciled green. CRDs → operators �
 | `3x-ui` | `443` Reality + Gateway `8443` (subs) | VLESS-Reality — stealth VPN access from RU |
 | `anylink` | `4443` TCP+DTLS (hostNetwork) | OpenConnect SSL-VPN — laptops/phones + Keenetic router |
 | `gost` | `7443` http+tls, `1443` socks5+tls | TLS-wrapped proxy — DPI-resistant from RU |
-| `ovpn-admin` | `1194` TCP + UI `8000` (private) | OpenVPN + web UI — protocol diversity for clients |
 | `sandbox` | — | placeholder for learning workloads (R-014) |
 
-> Port map (single-IP node): `443`=Reality · `4443`=anylink · `7443`/`1443`=gost · `1194`=OpenVPN.
+> Port map (single-IP node): `443`=Reality · `4443`=anylink · `7443`/`1443`=gost.
+>
+> OpenVPN (flant/ovpn-admin) was trialled and removed — the v0.0.3 chart needed too many
+> postRenderer workarounds (wrong image, no redirect-gateway, double-NAT, iptables backend
+> mismatch on hostNetwork). Reality + gost + anylink cover the need. If protocol diversity
+> is ever wanted, prefer adding a 3x-ui inbound (Hysteria2/TUIC) over a new deployment.
 
 **Infrastructure** (`infrastructure/base/<component>/`):
 
@@ -73,7 +77,7 @@ platform (CRDs, cert-manager, gateway) is reconciled green. CRDs → operators �
 > a ConfigMap/Secret which changes should carry `reloader.stakater.com/auto: "true"` on its
 > Deployment — Reloader (installed cluster-wide) watches and restarts it. Our app-template
 > apps set it under `controllers.<name>.annotations`; for third-party charts that don't,
-> add it via a HelmRelease `postRenderers` patch (see `apps/base/ovpn-admin`).
+> add it via a HelmRelease `postRenderers` patch.
 
 ## The "third path": canonical + Kustomize Components
 
