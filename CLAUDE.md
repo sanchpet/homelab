@@ -82,8 +82,8 @@ Never dump `app-config.yaml`/`app-certificate.yaml` flat in the cluster dir.
 **Reloader is installed** (stakater, cluster-wide) — annotate a workload
 `reloader.stakater.com/auto: "true"` for ConfigMap/Secret auto-restart; **don't
 `kubectl rollout restart`**. app-template apps set it under `controllers.<name>.annotations`;
-third-party charts without the knob → add via a HelmRelease `postRenderers` patch (see
-`apps/base/ovpn-admin`). Full app/infra inventory: `kubernetes/README.md` § What runs here.
+third-party charts without the knob → add via a HelmRelease `postRenderers` patch. Full
+app/infra inventory: `kubernetes/README.md` § What runs here.
 
 ## Secrets
 
