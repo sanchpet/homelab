@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: docker.io/cherts/anylink
-              tag: v0.14.2
+              tag: "0.14.2"
             args: ["--conf=/app/conf/server.toml"]
             env:
               TZ: "Europe/Moscow"
