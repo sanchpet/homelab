@@ -15,7 +15,7 @@ include "root" {
 }
 
 terraform {
-  source = "../../modules/threexui-panel"
+  source = "../../../modules/threexui-panel"
 }
 
 locals {

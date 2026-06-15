@@ -11,7 +11,8 @@ terraform/
     threexui-panel/   # configure a 3x-ui panel (inbounds/clients) via the threexui provider
   live/
     root.hcl          # shared remote state (Yandex S3, S3-native locking)
-    ger/              # the ips-ger-vps panel  (terragrunt unit)
+    threexui/
+      ger/            # the ips-ger-vps 3x-ui panel  (terragrunt unit)
 ```
 
 ## Panel configuration (active — WP-043)
@@ -47,7 +48,7 @@ The panel is ClusterIP-only — open a tunnel so `http://localhost:2053` reaches
 # VPN off:  ssh -L 2053:<xui-panel-clusterIP>:2053 <ger-node>
 # VPN on:   kubectl port-forward -n vpn svc/xui-panel 2053:2053
 
-cd terraform/live/ger
+cd terraform/live/threexui/ger
 cp secrets.sops.yaml.example secrets.sops.yaml   # fill real panel creds, then:
 sops --encrypt --in-place secrets.sops.yaml      # needs the repo age key
 terragrunt apply                                  # needs the age private key to decrypt
@@ -56,7 +57,7 @@ terragrunt apply                                  # needs the age private key to
 `secrets.sops.yaml` (panel admin user/pass + `webBasePath`) is SOPS-encrypted; the age
 private key must be available locally (`SOPS_AGE_KEY_FILE` or `~/.config/sops/age/keys.txt`).
 
-Adding a panel = a new `live/<panel>/` (its own `terragrunt.hcl` + `secrets.sops.yaml`).
+Adding a panel = a new `live/threexui/<panel>/` (its own `terragrunt.hcl` + `secrets.sops.yaml`).
 
 ## Layer 0 — provisioning (later)
 
