@@ -1,0 +1,11 @@
+---
+# Cluster-specific: the host clients put in their generated .ovpn (remote ... 1194 tcp).
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ovpn-admin
+  namespace: vpn
+spec:
+  values:
+    openvpn:
+      externalHost: vps-2.usa.ips.sanch.pet

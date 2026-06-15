@@ -1,0 +1,43 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ovpn-admin
+  namespace: vpn
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: charts/openvpn-admin
+      sourceRef:
+        kind: GitRepository
+        name: ovpn-admin
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    # The image is a combined build (Go ovpn-admin + openvpn + easy-rsa); the chart runs
+    # it as both containers. openvpn.repo in the chart is vestigial/unused.
+    ovpnAdmin:
+      repo: ghcr.io/palark/ovpn-admin/ovpn-admin
+    openvpn:
+      # OpenVPN over TCP, published on the node. externalHost set per-cluster (overlay).
+      inlet: HostPort
+      hostPort: 1194
+      externalPort: 1194
+      subnet: 172.16.200.0/255.255.255.0
+    ingress:
+      # Admin UI (:8000) stays private → reached via SSH tunnel, no public ingress.
+      enabled: false
+  postRenderers:
+    # The chart hardcodes the `:master` tag (no semver tags exist upstream). Pin to the
+    # reviewed digest so deploys are reproducible. Re-resolve with:
+    #   crane digest ghcr.io/palark/ovpn-admin/ovpn-admin:master
+    - kustomize:
+        images:
+          - name: ghcr.io/palark/ovpn-admin/ovpn-admin
+            digest: sha256:e1d8a40f2ce5a87f6f8fe916ee1b943079865417a04dd4546c6061bbab2dfc46
