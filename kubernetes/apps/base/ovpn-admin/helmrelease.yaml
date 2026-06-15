@@ -115,6 +115,11 @@ spec:
                 annotations:
                   reloader.stakater.com/auto: "true"
               spec:
+                # hostPort 1194 is exclusive → default RollingUpdate deadlocks (the new pod
+                # can't bind the port held by the still-running old one). Recreate first.
+                strategy:
+                  type: Recreate
+                  rollingUpdate: null
                 template:
                   spec:
                     containers:
