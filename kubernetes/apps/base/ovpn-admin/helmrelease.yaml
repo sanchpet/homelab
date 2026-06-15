@@ -115,8 +115,31 @@ spec:
                 annotations:
                   reloader.stakater.com/auto: "true"
               spec:
+                # hostNetwork binds node:1194 exclusively → RollingUpdate can't place the new
+                # pod while the old still holds the port. Recreate: stop old, then start new.
+                strategy:
+                  type: Recreate
+                  rollingUpdate: null
                 template:
                   spec:
+                    # A routing VPN needs node-level NAT. Without hostNetwork the client
+                    # traffic is double-NAT'd (pod MASQUERADE, then node SNAT) and the return
+                    # path breaks (egress one-way: MASQUERADE counter rises but no replies).
+                    # hostNetwork = a single MASQUERADE on the node — the model anylink uses.
+                    hostNetwork: true
+                    dnsPolicy: ClusterFirstWithHostNet
+                    # On hostNetwork the auth-less admin UI would be public on node:8000.
+                    # Drop it from non-loopback at the node firewall; reach it via SSH tunnel.
+                    initContainers:
+                      - name: restrict-admin-ui
+                        image: ghcr.io/palark/ovpn-admin/openvpn@sha256:1d6d892570a79af81a51d7630c6b21de80f770abe98e7750d26c2f915f428f06
+                        command:
+                          - /bin/sh
+                          - -c
+                          - 'iptables -C INPUT -p tcp --dport 8000 ! -i lo -j DROP 2>/dev/null || iptables -I INPUT 1 -p tcp --dport 8000 ! -i lo -j DROP'
+                        securityContext:
+                          capabilities:
+                            add: ["NET_ADMIN"]
                     containers:
                       # Chart bug: the openvpn container is given ovpnAdmin.repo, which has
                       # no iptables (Dockerfile.ovpn-admin), so the entrypoint's MASQUERADE
