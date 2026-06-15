@@ -149,3 +149,44 @@ ping -D -s 1372 10.99.99.1     # 1400-byte packet — "frag needed ... (MTU 1382
 Then keep the anylink `mtu` comfortably below that number. (ICMP may show loss even at a
 passing size — it's deprioritized on the foreign leg; the real test is whether the TCP
 session survives past the old ~35s mark.)
+
+## Known limitation — DPI throttling from RU on this VPS route
+
+anylink/OpenConnect from inside RU **over this VPS's route** drops every ~50s
+(`Aborted by caller`, client-initiated, looping). This is **not** an anylink/MTU/DTLS bug
+— it's ТСПУ (DPI) shaping the classifiable OpenConnect stream on this VPS's
+already-throttled foreign route (the same shaping that broke the Flux bootstrap and forced
+us onto Reality). Tuning anylink can't fix it: the shaping keys on protocol class, not
+packet size.
+
+Ruled out, in order:
+
+- **MTU** — 1400→1300 pushed the drop from ~35s to ~54s. Fixed a real blackhole, but not
+  the cause.
+- **DTLS/UDP** — `server_dtls=false` → no change.
+- **Protocol / client / software** — the discriminator: a **clean-route anylink server
+  (a friend's) holds for HOURS from the same Keenetic over the same ISP**. Same protocol,
+  same DPI path, stable → the only variable left is the per-VPS route being shaped.
+- **Not OpenConnect-specific** — an **SSH tunnel** to the same VPS carrying panel traffic
+  also resets (`Connection reset by peer`) after ~70s. The shaping hits *any* non-stealth
+  flow with sustained volume, not just OpenConnect. (Interactive SSH — tiny keystrokes —
+  survives; "big hangs, small flies".)
+
+Why Reality (3x-ui) survives on the same node: Reality is **pattern-stealth** (DPI can't
+classify it → doesn't shape it). OpenConnect/SSH are recognizable → classified → shaped.
+The TLS handshake isn't blocked (a short `curl` to `:4443` returns `200`); only the
+sustained, classified stream is throttled.
+
+### Roles that follow
+
+- **anylink** — travel / non-DPI networks / backup access. Stable off the shaped route.
+- **Reality (3x-ui)** — stealth access from RU.
+- **Whole-LAN stealth from RU** — *not* OpenConnect: run a Reality client on the router
+  (xray via Entware / xkeen on Keenetic) pointed at the 3x-ui Reality inbound. Separate effort.
+
+### Managing the node despite the throttle
+
+Even `ssh -L 8800:127.0.0.1:8800 <node>` for the admin panel resets under load. Reach the
+node **through Reality** instead: bring up the Reality client (the one that replaced
+v2RayTun), then SSH / port-forward over it — stealth, unthrottled. The stealth VPN doubles
+as the management plane for its own throttled host.
