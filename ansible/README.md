@@ -32,8 +32,18 @@ Flux `kubernetes/clusters/<cluster>/` layout.
 > **`cluster_context` is required per cluster.** The collection merges each cluster's
 > kubeconfig into `~/.kube/config` under `cluster_context`, which defaults to
 > `k3s-ansible` for *every* cluster — so a second cluster silently overwrites the first's
-> context. Each `group_vars/k3s_cluster.yml` sets `cluster_context: <cluster>`. To
-> re-import a context after a fix: `ansible-playbook -i inventory/<cluster>/ playbooks/site.yml --tags kubeconfig`.
+> context. Each `group_vars/k3s_cluster.yml` sets `cluster_context: <cluster>`.
+>
+> The import only runs on **first setup** — `--tags kubeconfig` does *not* re-trigger it
+> (the collection's import block isn't tagged). To restore/re-import a context later, do it
+> manually:
+>
+> ```bash
+> ssh <user>@<node> 'cat /etc/rancher/k3s/k3s.yaml' > /tmp/kc.yaml
+> sed -i '' 's#127.0.0.1#<node-dns>#; s/default/<cluster>/g' /tmp/kc.yaml
+> KUBECONFIG=/tmp/kc.yaml:~/.kube/config kubectl config view --flatten > /tmp/m && mv /tmp/m ~/.kube/config
+> rm /tmp/kc.yaml
+> ```
 
 ## Prerequisites
 
