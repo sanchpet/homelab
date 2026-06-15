@@ -7,6 +7,12 @@
 k3s_version: v1.33.4+k3s1
 api_endpoint: "{{ hostvars[groups['server'][0]]['ansible_host'] }}"
 
+# Local kubeconfig context/cluster/user name (the k3s_server role merges k3s.yaml into
+# ~/.kube/config under this name). MUST be unique per cluster — the collection defaults
+# it to `k3s-ansible` for EVERY cluster, so without this each `site.yml` run overwrites
+# the previous cluster's context (Germany clobbered USA once).
+cluster_context: ips-usa-vps-2
+
 # token intentionally omitted: a single server auto-generates one. For multi-node,
 # set `token` here under ansible-vault (openssl rand -base64 64).
 

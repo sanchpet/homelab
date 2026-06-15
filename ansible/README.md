@@ -29,6 +29,12 @@ Per-cluster vars (k3s version, server config) live in that cluster's `group_vars
 fleet-global vars (SSH key, admin user) live once in `vars/fleet.yml`. Mirrors the
 Flux `kubernetes/clusters/<cluster>/` layout.
 
+> **`cluster_context` is required per cluster.** The collection merges each cluster's
+> kubeconfig into `~/.kube/config` under `cluster_context`, which defaults to
+> `k3s-ansible` for *every* cluster — so a second cluster silently overwrites the first's
+> context. Each `group_vars/k3s_cluster.yml` sets `cluster_context: <cluster>`. To
+> re-import a context after a fix: `ansible-playbook -i inventory/<cluster>/ playbooks/site.yml --tags kubeconfig`.
+
 ## Prerequisites
 
 Tooling is managed with mise + uv. The repo-root `mise.toml` provides the cluster
