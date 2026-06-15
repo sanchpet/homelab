@@ -4,3 +4,9 @@ kind: Kustomization
 resources:
   - ../base/3x-ui
   - httproute.yaml
+  # anylink (OpenConnect SSL-VPN) — app-template workload (base) + cluster-specific
+  # config/cert/secret here:
+  - ../base/anylink
+  - anylink-config.yaml
+  - anylink-certificate.yaml
+  - anylink-secret.sops.yaml

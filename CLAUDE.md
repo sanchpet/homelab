@@ -57,11 +57,31 @@ what the community already maintains.**
 > community-first violation (the official collection turned out to be maintained and
 > consumable).
 
+## Kubernetes app pattern (BLOCKING)
+
+Apps are deployed via the **bjw-s `app-template`** generic chart (HelmRelease +
+per-app OCIRepository pinning the chart), not raw Deployment/Service YAML — repo-wide,
+the home-ops standard. Cross-cutting resources (Certificate/cert-manager,
+ExternalSecret/ESO, raw Secrets/ConfigMaps) are **sibling manifests** in the same app
+dir, composed by the Flux Kustomization — app-template owns the workload, not other
+operators' CRs. Reference: `apps/base/anylink` (app-template) + `apps/ips-usa-vps-2`
+(its cert/config/secret). `3x-ui` is still raw Kustomize → pending migration to
+app-template for consistency. Don't mix generic-chart + raw for the *same* workload
+(the anti-pattern).
+
 ## Secrets
 
-Only **SOPS** (age), one key per cluster (`.sops.yaml`). IPs / domains / ports are
-**public** (the control is node hardening, not obscurity). A secret-in-disguise
-(tokenized URLs, bootstrap/node tokens) goes into the vault even though it looks like config.
+Real secrets via **SOPS** (age). The age **public** key is in `.sops.yaml`
+(`encrypted_regex: ^(data|stringData)$`); secret files are named `*.sops.yaml`. The age
+**private** key lives only as the `sops-age` Secret in `flux-system` (created
+out-of-band on the node) and in the owner's password manager — never in Git. Flux
+Kustomizations decrypt via `spec.decryption: { provider: sops, secretRef: sops-age }`.
+Encrypt only what's secret: e.g. anylink's `server.toml` is a plaintext ConfigMap;
+only `LINK_ADMIN_PASS`/`LINK_JWT_SECRET` go in a SOPS Secret (env override).
+
+IPs / domains / ports are **public** (the control is node hardening, not obscurity).
+A secret-in-disguise (tokenized URLs, node tokens) goes into SOPS even if it looks
+like config. (Self-hosted secret store — Vault/Infisical — is a planned upgrade off SOPS.)
 
 ## Multi-cluster
 

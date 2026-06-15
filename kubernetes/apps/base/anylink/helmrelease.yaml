@@ -1,0 +1,71 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: anylink
+  namespace: vpn
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: anylink
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      anylink:
+        type: deployment
+        strategy: Recreate
+        pod:
+          # OpenConnect SSL-VPN: routes + NATs client traffic on the host → hostNetwork.
+          hostNetwork: true
+          dnsPolicy: ClusterFirstWithHostNet
+        containers:
+          app:
+            image:
+              repository: docker.io/cherts/anylink
+              tag: v0.14.2
+            args: ["--conf=/app/conf/server.toml"]
+            env:
+              TZ: "Europe/Moscow"
+              ANYLINK_IN_CONTAINER: "on"
+            envFrom:
+              # LINK_ADMIN_PASS + LINK_JWT_SECRET — override the toml placeholders.
+              - secretRef:
+                  name: anylink-secret
+            securityContext:
+              privileged: true   # TUN device + iptables NAT
+    persistence:
+      # server.toml — plaintext ConfigMap (cluster overlay); only secrets live in SOPS.
+      config:
+        type: configMap
+        name: anylink-conf
+        advancedMounts:
+          anylink:
+            app:
+              - path: /app/conf/server.toml
+                subPath: server.toml
+                readOnly: true
+      # TLS cert for the VPN endpoint — cert-manager Certificate (cluster overlay).
+      tls:
+        type: secret
+        name: anylink-tls
+        advancedMounts:
+          anylink:
+            app:
+              - path: /app/ssl
+                readOnly: true
+      data:
+        type: persistentVolumeClaim
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        storageClass: local-path
+        advancedMounts:
+          anylink:
+            app:
+              - path: /app/db
