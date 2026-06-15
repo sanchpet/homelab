@@ -114,3 +114,13 @@ spec:
                 name: openvpn
                 annotations:
                   reloader.stakater.com/auto: "true"
+              spec:
+                template:
+                  spec:
+                    containers:
+                      # Chart bug: the openvpn container is given ovpnAdmin.repo, which has
+                      # no iptables (Dockerfile.ovpn-admin), so the entrypoint's MASQUERADE
+                      # silently fails → clients get no egress. The correct image is
+                      # openvpn.repo (Dockerfile.openvpn ships iptables). Pin by digest.
+                      - name: openvpn
+                        image: ghcr.io/palark/ovpn-admin/openvpn@sha256:1d6d892570a79af81a51d7630c6b21de80f770abe98e7750d26c2f915f428f06
