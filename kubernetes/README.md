@@ -45,6 +45,36 @@ go in the **overlay** (`infrastructure/<name>/`, `apps/<name>/`) — either as e
 `apps.yaml` has `dependsOn: infrastructure`, so Flux won't apply workloads until the
 platform (CRDs, cert-manager, gateway) is reconciled green. CRDs → operators → apps.
 
+## What runs here
+
+**Applications** (`apps/base/<app>/`, namespace `vpn` unless noted):
+
+| App | Exposure (node port) | Purpose |
+|-----|----------------------|---------|
+| `3x-ui` | `443` Reality + Gateway `8443` (subs) | VLESS-Reality — stealth VPN access from RU |
+| `anylink` | `4443` TCP+DTLS (hostNetwork) | OpenConnect SSL-VPN — laptops/phones + Keenetic router |
+| `gost` | `7443` http+tls, `1443` socks5+tls | TLS-wrapped proxy — DPI-resistant from RU |
+| `ovpn-admin` | `1194` TCP + UI `8000` (private) | OpenVPN + web UI — protocol diversity for clients |
+| `sandbox` | — | placeholder for learning workloads (R-014) |
+
+> Port map (single-IP node): `443`=Reality · `4443`=anylink · `7443`/`1443`=gost · `1194`=OpenVPN.
+
+**Infrastructure** (`infrastructure/base/<component>/`):
+
+| Component | Purpose |
+|-----------|---------|
+| `cert-manager` | Let's Encrypt certs (HTTP-01 via the Gateway) |
+| `nginx-gateway-fabric` + `gateway-api` | Gateway API controller + CRDs (Traefik disabled in k3s) |
+| `reloader` (stakater) | **auto-restart pods on ConfigMap/Secret change** |
+| `system-upgrade-controller` | GitOps k3s upgrades (Ф3, placeholder) |
+| `letsencrypt` (component) | `letsencrypt-staging` / `-prod` ClusterIssuers |
+
+> **Reloader convention (use it, don't `kubectl rollout restart`):** a workload that mounts
+> a ConfigMap/Secret which changes should carry `reloader.stakater.com/auto: "true"` on its
+> Deployment — Reloader (installed cluster-wide) watches and restarts it. Our app-template
+> apps set it under `controllers.<name>.annotations`; for third-party charts that don't,
+> add it via a HelmRelease `postRenderers` patch (see `apps/base/ovpn-admin`).
+
 ## The "third path": canonical + Kustomize Components
 
 Why this over the two common alternatives:

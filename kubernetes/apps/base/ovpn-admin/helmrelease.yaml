@@ -102,3 +102,15 @@ spec:
                   crl-verify /etc/openvpn/certs/pki/crl.pem
                   tls-auth /etc/openvpn/certs/pki/ta.key
                   client-config-dir /etc/openvpn/ccd
+          # Auto-restart the pod when the openvpn ConfigMap changes (the chart doesn't
+          # set this). Needs stakater Reloader (infra/base/reloader).
+          - target:
+              kind: Deployment
+              name: openvpn
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: openvpn
+                annotations:
+                  reloader.stakater.com/auto: "true"
