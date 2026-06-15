@@ -10,12 +10,16 @@ plus **Kustomize Components** for à-la-carte composition (the "third path", bel
 kubernetes/
   clusters/<name>/          # Flux wiring for one cluster (NOT manifests)
     flux-system/            #   gotk components + sync (written by `flux bootstrap`)
-    infrastructure.yaml     #   Flux Kustomization → infrastructure/<name>
-    apps.yaml               #   Flux Kustomization → apps/<name> (dependsOn: infrastructure)
+    infra-crds.yaml         #   Flux Kustomization → infrastructure/crds
+    infra-controllers.yaml  #   → infrastructure/controllers (dependsOn: infra-crds)
+    infra-configs.yaml      #   → infrastructure/<name>     (dependsOn: infra-controllers)
+    apps.yaml               #   → apps/<name>               (dependsOn: infra-configs)
   infrastructure/
-    base/<component>/       # complete platform resources (cert-manager, NGF, CRDs)
-    components/<feature>/   # reusable, optional MODIFICATIONS (monitoring, issuers)
-    <name>/kustomization.yaml   # per-cluster overlay: select base + toggle components
+    base/<component>/       # complete platform resources (cert-manager, NGF, gateway-api)
+    crds/                   # layer 1: CRDs only (shared)            ← infra-crds
+    controllers/            # layer 2: operators (shared)            ← infra-controllers
+    components/<feature>/   # reusable, optional MODIFICATIONS (issuers, ...)
+    <name>/kustomization.yaml   # layer 3: per-cluster configs (Gateway, issuers) ← infra-configs
   apps/
     base/<app>/             # complete workload definitions (sandbox, 3x-ui, anylink)
     components/<feature>/   # reusable modifications (HTTPRoute wiring, ...)
@@ -40,10 +44,23 @@ The actual manifests live in `infrastructure/` and `apps/`. Cluster-specific man
 go in the **overlay** (`infrastructure/<name>/`, `apps/<name>/`) — either as extra
 `resources:` or as `patches:` to base.
 
-## Ordering
+## Ordering — explicit layers, not retry-until-it-works
 
-`apps.yaml` has `dependsOn: infrastructure`, so Flux won't apply workloads until the
-platform (CRDs, cert-manager, gateway) is reconciled green. CRDs → operators → apps.
+A single infra Kustomization mixing CRDs, operators and the resources that *use* them
+races on first reconcile (`no matches for kind "Gateway"` until the CRDs land). Instead the
+infra is split into Flux Kustomizations chained with `dependsOn` + `wait: true`:
+
+```
+infra-crds  →  infra-controllers  →  infra-configs  →  apps
+(Gateway API   (cert-manager, NGF,    (Gateway, certs,   (workloads)
+ CRDs)          reloader)              ClusterIssuers)
+```
+
+`wait: true` makes each layer block until its objects (incl. a nested CRD Kustomization)
+are Ready, so the next layer never references a kind that isn't installed yet. `infra-crds`
++ `infra-controllers` point at the **shared** `infrastructure/{crds,controllers}`;
+`infra-configs` at the **per-cluster** `infrastructure/<name>`. cert-manager ships its own
+CRDs via its chart (in controllers); only the Gateway API CRDs need the explicit crds layer.
 
 ## What runs here
 

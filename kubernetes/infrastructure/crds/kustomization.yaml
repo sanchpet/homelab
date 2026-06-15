@@ -1,0 +1,9 @@
+---
+# Layer 1 — CRDs only. Installed + waited on before controllers/configs so resources that
+# reference these kinds (Gateway, HTTPRoute, …) never hit "no matches for kind". Shared by
+# all clusters via a `infra-crds` Flux Kustomization. cert-manager ships its own CRDs with
+# its chart (in controllers), so only the Gateway API CRDs need explicit ordering here.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../base/gateway-api
