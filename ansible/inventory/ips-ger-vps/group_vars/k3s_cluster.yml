@@ -9,6 +9,10 @@
 k3s_version: v1.36.1+k3s1
 api_endpoint: "{{ hostvars[groups['server'][0]]['ansible_host'] }}"
 
+# Local kubeconfig context name — unique per cluster (collection defaults all clusters to
+# `k3s-ansible`, which overwrites). See ips-usa-vps-2 group_vars for the full rationale.
+cluster_context: ips-ger-vps
+
 # token intentionally omitted: a single server auto-generates one. For multi-node,
 # set `token` here under ansible-vault (openssl rand -base64 64).
 
