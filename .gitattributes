@@ -1,0 +1,9 @@
+# Line endings: normalize all text to LF in the repo and on checkout, on every
+# platform. Pairs with the pre-commit `mixed-line-ending` hook.
+* text=auto eol=lf
+
+# GitHub Linguist
+# YAML is a "data" language, which Linguist excludes from the repo language bar by
+# default — force it to be counted (this repo is YAML-heavy: Kubernetes + Flux).
+*.yaml linguist-detectable=true
+*.yml  linguist-detectable=true
