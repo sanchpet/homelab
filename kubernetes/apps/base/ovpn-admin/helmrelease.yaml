@@ -41,3 +41,64 @@ spec:
         images:
           - name: ghcr.io/palark/ovpn-admin/ovpn-admin
             digest: sha256:e1d8a40f2ce5a87f6f8fe916ee1b943079865417a04dd4546c6061bbab2dfc46
+        patches:
+          # The chart's openvpn.conf pushes no default route → clients tunnel only the VPN
+          # subnet and keep their real egress IP. Re-emit the full conf with
+          # `redirect-gateway` (route all traffic) + a DNS push (avoid leaks). Re-sync this
+          # if the pinned chart's openvpn.conf changes (subnet must match openvpn.subnet).
+          - target:
+              kind: ConfigMap
+              name: openvpn
+            patch: |
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: openvpn
+              data:
+                openvpn.conf: |-
+                  user nobody
+                  group nogroup
+
+                  mode server
+                  tls-server
+                  dev tun
+                  proto tcp-server
+                  port 1194
+                  management 127.0.0.1 8989
+
+                  tun-mtu 1500
+                  # TCP transport absorbs outer path-MTU; mssfix clamps inner TCP MSS.
+                  # 1400 (vs the chart's default ~1492) is a safety margin for friends on
+                  # constrained networks (PPPoE/mobile). No blackhole risk like anylink/UDP.
+                  mssfix 1400
+
+                  keepalive 10 60
+                  client-to-client
+                  persist-key
+                  persist-tun
+
+                  cipher AES-128-CBC
+                  duplicate-cn
+
+                  server 172.16.200.0 255.255.255.0
+
+                  topology subnet
+                  push "topology subnet"
+                  push "route-metric 9999"
+                  push "redirect-gateway def1 bypass-dhcp"
+                  push "dhcp-option DNS 1.1.1.1"
+
+                  verb 4
+
+                  ifconfig-pool-persist /tmp/openvpn.ipp
+                  status /tmp/openvpn.status
+
+                  key-direction 0
+
+                  ca /etc/openvpn/certs/pki/ca.crt
+                  key /etc/openvpn/certs/pki/private/server.key
+                  cert /etc/openvpn/certs/pki/issued/server.crt
+                  dh /etc/openvpn/certs/pki/dh.pem
+                  crl-verify /etc/openvpn/certs/pki/crl.pem
+                  tls-auth /etc/openvpn/certs/pki/ta.key
+                  client-config-dir /etc/openvpn/ccd
