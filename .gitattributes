@@ -7,3 +7,8 @@
 # default — force it to be counted (this repo is YAML-heavy: Kubernetes + Flux).
 *.yaml linguist-detectable=true
 *.yml  linguist-detectable=true
+
+# ...but Flux bootstrap output (GitOps Toolkit, gotk-*) is generated, not authored —
+# exclude it from the stats and collapse it in diffs. gotk-components.yaml alone is
+# ~89% of this repo's YAML lines, so it would otherwise drown out the real config.
+**/flux-system/gotk-*.yaml linguist-generated=true
