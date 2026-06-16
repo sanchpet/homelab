@@ -1,9 +1,11 @@
 # The S3 bucket that holds Terraform state for the whole homelab + its storage-admin
 # service account (static access key). Community module, pinned to the latest tag.
 #
-# Bootstrap unit: standalone (no `include "root"`) → LOCAL state (the bucket it creates is
-# the backend, so it can't store its own state there on first apply). After apply, migrate
-# this unit's state into S3 (see terraform/README.md § bootstrap). Auth via env:
+# Bootstrap unit: it creates the bucket that backs everything else, so on first apply it
+# runs on LOCAL state (transient, in .terragrunt-cache/). Right after apply — the bucket now
+# exists — migrate this unit onto S3: add `include "root"` + `terragrunt init -migrate-state`
+# (see docs/2_yandex_cloud_bootstrap.md). Until you migrate, don't clear .terragrunt-cache.
+# Auth via env:
 #   export YC_TOKEN=$(yc iam create-token)   # IAM token creates the bucket (not S3 keys)
 #   export TF_STATE_BUCKET=sanchpet-homelab-tfstate
 
