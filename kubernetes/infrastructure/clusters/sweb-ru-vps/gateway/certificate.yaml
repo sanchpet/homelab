@@ -1,0 +1,26 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ntfy-vps-ru-tls
+  namespace: nginx-gateway
+spec:
+  secretName: ntfy-vps-ru-tls
+  dnsNames:
+    - ntfy.vps.ru.sweb.sanch.pet
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: status-vps-ru-tls
+  namespace: nginx-gateway
+spec:
+  secretName: status-vps-ru-tls
+  dnsNames:
+    - status.vps.ru.sweb.sanch.pet
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
