@@ -1,7 +1,7 @@
 # Provider + engine pinning for the threexui-panel module.
 #
 # `use_lockfile` (S3-native state locking, set in live/root.hcl) needs OpenTofu >= 1.10;
-# we pin the toolchain at 1.12.x in terraform/mise.toml, so require >= 1.10 here.
+# we pin the toolchain at 1.12.x in the repo-root mise.toml, so require >= 1.10 here.
 terraform {
   required_version = ">= 1.10.0"
 

@@ -17,6 +17,18 @@ repos:
     hooks:
       - id: gitleaks
 
+  # Terraform/OpenTofu quality gates. Tools are pinned in terraform/mise.toml
+  # (terraform-docs, tflint, trivy) and OpenTofu is used via PCT_TFPATH=tofu — they must be
+  # resolvable on PATH (mise shims) when pre-commit runs.
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.106.0
+    hooks:
+      - id: terragrunt_fmt
+      - id: terraform_fmt
+      - id: terraform_docs
+      - id: terraform_tflint
+      - id: terraform_trivy
+
   # ansible-lint via the repo's pinned toolchain (so devsec/k3s.orchestration
   # collections resolve). Requires `mise run deps` to have installed collections.
   - repo: local

@@ -1,7 +1,8 @@
 # Terraform / OpenTofu
 
 Engine: **OpenTofu** (drop-in for Terraform, MPL-2.0), driven by **Terragrunt**. Toolchain
-pinned in `terraform/mise.toml` (`opentofu`, `terragrunt`; `TG_TF_PATH=tofu`).
+pinned in the repo-root `mise.toml` (`opentofu`, `terragrunt`, `terraform-docs`, `tflint`,
+`trivy`; `TG_TF_PATH`/`PCT_TFPATH=tofu`).
 
 Two concerns live here:
 
