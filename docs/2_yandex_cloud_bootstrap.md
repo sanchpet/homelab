@@ -25,9 +25,10 @@ terragrunt apply
 cd ../yc-s3-tf-state
 terragrunt apply        # creates the bucket + storage-admin SA
 
-# the SA static key → the AWS-style env the S3 backend uses (keep out of shell history):
-export AWS_ACCESS_KEY_ID=$(terragrunt output -raw storage_admin_access_key)
-export AWS_SECRET_ACCESS_KEY=$(terragrunt output -raw storage_admin_secret_key)
+# write the SA static key into the `homelab` AWS profile (the S3 backend uses it —
+# AWS_PROFILE=homelab is auto-exported by mise; keys go to ~/.aws/credentials, not Git):
+aws configure --profile homelab set aws_access_key_id     "$(terragrunt output -raw storage_admin_access_key)"
+aws configure --profile homelab set aws_secret_access_key "$(terragrunt output -raw storage_admin_secret_key)"
 ```
 
 ## 2.3 Migrate the bootstrap state into S3

@@ -30,6 +30,10 @@ PCT_TFPATH        = "terraform"
 # Yandex Cloud context for the terraform/ units (identifiers, not secrets).
 YC_CLOUD_ID     = "b1gr5nrg10c4rnr8gehu"
 TF_STATE_BUCKET = "sanchpet-homelab-tfstate"
+# The S3 state backend authenticates with this AWS named profile (the storage-admin SA
+# static key). Configure it once after 2.2: `aws configure --profile homelab` (the keys
+# come from `terragrunt output` of yc-s3-tf-state). Keys live in ~/.aws/credentials, not Git.
+AWS_PROFILE = "homelab"
 # Auto-export a (cached) Yandex IAM token as YC_TOKEN on entering the repo. The token is
 # NOT stored in Git — the script fetches it via `yc iam create-token` and caches it ~11h.
 _.source = "scripts/yc-token.sh"

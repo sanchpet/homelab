@@ -35,7 +35,8 @@ yc init             # log in, pick the cloud/folder
 ```
 
 The repo-root `mise.toml` then auto-exports, on entering the repo: `YC_CLOUD_ID`,
-`TF_STATE_BUCKET` (static), and `YC_TOKEN` (a cached IAM token, refreshed ~every 11h by
-`scripts/yc-token.sh`). Nothing to export by hand.
+`TF_STATE_BUCKET`, `AWS_PROFILE=homelab` (static), and `YC_TOKEN` (a cached IAM token,
+refreshed ~every 11h by `scripts/yc-token.sh`). Nothing to export by hand — you only
+configure the `homelab` AWS profile once, after the state bucket exists (see doc 2).
 
 Next: [2_yandex_cloud_bootstrap.md](2_yandex_cloud_bootstrap.md).

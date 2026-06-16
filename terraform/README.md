@@ -31,12 +31,14 @@ provider `batonogov/threexui`, closing the "config lives in SQLite, not Git" cav
 State is in an S3-compatible Yandex bucket (`sanchpet-homelab-tfstate`), locking is
 S3-native (`use_lockfile`, Terraform ≥ 1.11 — no DynamoDB). The bucket + a storage-admin
 service account are created by the `live/yandex-cloud/` bootstrap units — see
-[`docs/2_yandex_cloud_bootstrap.md`](../docs/2_yandex_cloud_bootstrap.md). Credentials are
-that SA's **static access key**, via the environment, never in Git:
+[`docs/2_yandex_cloud_bootstrap.md`](../docs/2_yandex_cloud_bootstrap.md). The backend
+authenticates with that SA's **static access key** through the `homelab` AWS profile
+(`AWS_PROFILE=homelab` is auto-set by the root `mise.toml`; the keys live in
+`~/.aws/credentials`, never in Git):
 
 ```sh
-export AWS_ACCESS_KEY_ID=<static-key-id>
-export AWS_SECRET_ACCESS_KEY=<static-key-secret>
+aws configure --profile homelab set aws_access_key_id     <static-key-id>
+aws configure --profile homelab set aws_secret_access_key <static-key-secret>
 ```
 
 > If `terraform init` errors on checksums against Yandex S3, export
