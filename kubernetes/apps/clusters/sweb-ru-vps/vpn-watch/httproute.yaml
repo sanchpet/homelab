@@ -1,0 +1,36 @@
+---
+# ntfy push UI — TLS-terminated at the Gateway (:443, ntfy-https listener).
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ntfy
+  namespace: monitoring
+spec:
+  parentRefs:
+    - name: main
+      namespace: nginx-gateway
+      sectionName: ntfy-https
+  hostnames:
+    - ntfy.vps.ru.sweb.sanch.pet
+  rules:
+    - backendRefs:
+        - name: ntfy
+          port: 80
+---
+# Uptime Kuma status page — TLS-terminated at the Gateway (:443, status-https listener).
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: status
+  namespace: monitoring
+spec:
+  parentRefs:
+    - name: main
+      namespace: nginx-gateway
+      sectionName: status-https
+  hostnames:
+    - status.vps.ru.sweb.sanch.pet
+  rules:
+    - backendRefs:
+        - name: uptime-kuma
+          port: 3001
