@@ -9,6 +9,35 @@ flux2 = "latest"
 # postinstall wires up the git hook + downloads hook envs on install.
 pre-commit = { version = "4.6.0", postinstall = "mise exec -- pre-commit install --install-hooks || true" }
 
+# Terraform toolchain. Repo-wide (not scoped to terraform/) ON PURPOSE: the
+# antonbabenko/pre-commit-terraform hooks run from the repo root and shell out to these
+# binaries, so they must be on PATH there — a terraform/-scoped mise.toml wouldn't reach
+# them. Terraform (not OpenTofu): the Yandex ecosystem (community modules + the yandex
+# provider) targets the Terraform registry; OpenTofu's registry lags badly (yandex 0.127
+# vs 0.206). 1.11+ is required for S3-native state locking (`use_lockfile`).
+terraform      = "1.15.6"
+terragrunt     = "1.0.8"
+terraform-docs = "0.24.0"  # module README injection (terraform_docs hook)
+tflint         = "0.63.1"  # lint (terraform_tflint hook)
+trivy          = "0.71.1"  # security scan (terraform_trivy hook)
+
+[env]
+# Point terragrunt + the pre-commit-terraform hooks at the terraform binary (the default,
+# set explicitly for clarity).
+TG_TF_PATH        = "terraform"
+TERRAGRUNT_TFPATH = "terraform"  # deprecated alias, kept for older terragrunt
+PCT_TFPATH        = "terraform"
+# Yandex Cloud context for the terraform/ units (identifiers, not secrets).
+YC_CLOUD_ID     = "b1gr5nrg10c4rnr8gehu"
+TF_STATE_BUCKET = "sanchpet-homelab-tfstate"
+# The S3 state backend authenticates with this AWS named profile (the storage-admin SA
+# static key). Configure it once after 2.2: `aws configure --profile homelab` (the keys
+# come from `terragrunt output` of yc-s3-tf-state). Keys live in ~/.aws/credentials, not Git.
+AWS_PROFILE = "homelab"
+# Auto-export a (cached) Yandex IAM token as YC_TOKEN on entering the repo. The token is
+# NOT stored in Git — the script fetches it via `yc iam create-token` and caches it ~11h.
+_.source = "scripts/yc-token.sh"
+
 [hooks]
 # Bullet-proof per-clone: re-install the pre-commit git hook on entering the repo.
 # Covers the case where pre-commit is already cached globally, so the tool's

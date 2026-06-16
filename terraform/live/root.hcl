@@ -3,7 +3,7 @@
 # Included by each child via:  include "root" { path = find_in_parent_folders("root.hcl") }
 #
 # State backend: Yandex Object Storage (S3-compatible). One state object per unit (key
-# derived from the path). Locking is S3-native (`use_lockfile`, OpenTofu >= 1.10) — a lock
+# derived from the path). Locking is S3-native (`use_lockfile`, Terraform >= 1.11) — a lock
 # object beside the state, no DynamoDB. (Yandex backend flags follow itruslan/homelab-infra,
 # which runs this in production.)
 #
@@ -13,8 +13,18 @@
 #   export TF_STATE_BUCKET=...          # state bucket name
 #
 # Bootstrap (chicken-and-egg): the bucket holds the state, so it can't be created by this
-# state. The planned live/yandex-cloud/{yc-folder,yc-s3-tf-state} units create it on LOCAL
-# state first, then migrate into S3 (`terragrunt init -migrate-state`). See terraform/README.md.
+# state. The live/yandex-cloud/{yc-folder,yc-s3-tf-state} units create it on LOCAL state
+# first, then migrate into S3 (`terragrunt init -migrate-state`). See terraform/README.md.
+
+# Fleet-wide values shared by units. Read them with `include.root.locals.<name>` after
+# `include "root" { ... expose = true }`.
+locals {
+  cloud_id = get_env("YC_CLOUD_ID", "b1gr5nrg10c4rnr8gehu")
+  labels = {
+    project    = "homelab"
+    managed_by = "terraform"
+  }
+}
 
 remote_state {
   backend = "s3"
@@ -25,7 +35,7 @@ remote_state {
   }
 
   config = {
-    bucket = get_env("TF_STATE_BUCKET", "homelab-tofu-state")
+    bucket = get_env("TF_STATE_BUCKET", "sanchpet-homelab-tfstate")
     key    = "${path_relative_to_include()}/terraform.tfstate"
     region = "us-east-1" # canonical placeholder; Yandex ignores region (validation skipped)
 
@@ -33,7 +43,7 @@ remote_state {
       s3 = "https://storage.yandexcloud.net"
     }
 
-    # S3-native state locking (OpenTofu >= 1.10): a *.tflock object beside the state.
+    # S3-native state locking (Terraform >= 1.11): a *.tflock object beside the state.
     use_lockfile = true
 
     # Yandex Object Storage is S3-compatible but not AWS — skip the AWS-only preflight,

@@ -17,6 +17,18 @@ repos:
     hooks:
       - id: gitleaks
 
+  # Terraform quality gates. Tools are pinned in the repo-root mise.toml (terraform,
+  # terraform-docs, tflint, trivy) — they must be resolvable on PATH when pre-commit runs
+  # (the hooks run from the repo root and shell out to the binaries).
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.106.0
+    hooks:
+      - id: terragrunt_fmt
+      - id: terraform_fmt
+      - id: terraform_docs
+      - id: terraform_tflint
+      - id: terraform_trivy
+
   # ansible-lint via the repo's pinned toolchain (so devsec/k3s.orchestration
   # collections resolve). Requires `mise run deps` to have installed collections.
   - repo: local
