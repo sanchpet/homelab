@@ -24,6 +24,12 @@ trivy          = "0.71.1"  # security scan (terraform_trivy hook)
 TG_TF_PATH        = "tofu"
 TERRAGRUNT_TFPATH = "tofu"  # deprecated alias, kept for older terragrunt
 PCT_TFPATH        = "tofu"
+# Yandex Cloud context for the terraform/ units (identifiers, not secrets).
+YC_CLOUD_ID     = "b1gr5nrg10c4rnr8gehu"
+TF_STATE_BUCKET = "sanchpet-homelab-tfstate"
+# Auto-export a (cached) Yandex IAM token as YC_TOKEN on entering the repo. The token is
+# NOT stored in Git — the script fetches it via `yc iam create-token` and caches it ~11h.
+_.source = "scripts/yc-token.sh"
 
 [hooks]
 # Bullet-proof per-clone: re-install the pre-commit git hook on entering the repo.
