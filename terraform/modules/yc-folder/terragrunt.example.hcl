@@ -12,6 +12,6 @@ inputs = {
   description = "Homelab infrastructure"
   labels = {
     project    = "homelab"
-    managed_by = "opentofu"
+    managed_by = "terraform"
   }
 }

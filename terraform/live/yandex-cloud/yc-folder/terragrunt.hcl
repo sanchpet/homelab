@@ -16,6 +16,6 @@ inputs = {
   description = "Homelab infrastructure — k3s VPN stand + Terraform state"
   labels = {
     project    = "homelab"
-    managed_by = "opentofu"
+    managed_by = "terraform"
   }
 }

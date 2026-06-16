@@ -17,9 +17,9 @@ repos:
     hooks:
       - id: gitleaks
 
-  # Terraform/OpenTofu quality gates. Tools are pinned in terraform/mise.toml
-  # (terraform-docs, tflint, trivy) and OpenTofu is used via PCT_TFPATH=tofu — they must be
-  # resolvable on PATH (mise shims) when pre-commit runs.
+  # Terraform quality gates. Tools are pinned in the repo-root mise.toml (terraform,
+  # terraform-docs, tflint, trivy) — they must be resolvable on PATH when pre-commit runs
+  # (the hooks run from the repo root and shell out to the binaries).
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.106.0
     hooks:

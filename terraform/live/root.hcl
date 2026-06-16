@@ -3,7 +3,7 @@
 # Included by each child via:  include "root" { path = find_in_parent_folders("root.hcl") }
 #
 # State backend: Yandex Object Storage (S3-compatible). One state object per unit (key
-# derived from the path). Locking is S3-native (`use_lockfile`, OpenTofu >= 1.10) — a lock
+# derived from the path). Locking is S3-native (`use_lockfile`, Terraform >= 1.11) — a lock
 # object beside the state, no DynamoDB. (Yandex backend flags follow itruslan/homelab-infra,
 # which runs this in production.)
 #
@@ -25,7 +25,7 @@ remote_state {
   }
 
   config = {
-    bucket = get_env("TF_STATE_BUCKET", "homelab-tofu-state")
+    bucket = get_env("TF_STATE_BUCKET", "sanchpet-homelab-tfstate")
     key    = "${path_relative_to_include()}/terraform.tfstate"
     region = "us-east-1" # canonical placeholder; Yandex ignores region (validation skipped)
 
@@ -33,7 +33,7 @@ remote_state {
       s3 = "https://storage.yandexcloud.net"
     }
 
-    # S3-native state locking (OpenTofu >= 1.10): a *.tflock object beside the state.
+    # S3-native state locking (Terraform >= 1.11): a *.tflock object beside the state.
     use_lockfile = true
 
     # Yandex Object Storage is S3-compatible but not AWS — skip the AWS-only preflight,

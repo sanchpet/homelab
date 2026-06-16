@@ -7,7 +7,7 @@ Yandex). Everything else is installed by mise.
 ```bash
 git clone git@github.com:sanchpet/homelab.git && cd homelab
 mise trust          # the root mise.toml runs an env script (yc token) — trust it once
-mise install        # opentofu, terragrunt, terraform-docs, tflint, trivy, sops, age, kubectl, flux2, ...
+mise install        # terraform, terragrunt, terraform-docs, tflint, trivy, sops, age, kubectl, flux2, ...
 ```
 
 The pre-commit hook installs itself (mise `postinstall` + `enter` hook). To run the gates

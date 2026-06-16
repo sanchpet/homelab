@@ -15,14 +15,14 @@ see [`terragrunt.example.hcl`](terragrunt.example.hcl).
 
 | Name | Version |
 | ---- | ------- |
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.10.0 |
-| <a name="requirement_yandex"></a> [yandex](#requirement\_yandex) | ~> 0.127.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.11.0 |
+| <a name="requirement_yandex"></a> [yandex](#requirement\_yandex) | ~> 0.206 |
 
 ## Providers
 
 | Name | Version |
 | ---- | ------- |
-| <a name="provider_yandex"></a> [yandex](#provider\_yandex) | ~> 0.127.0 |
+| <a name="provider_yandex"></a> [yandex](#provider\_yandex) | ~> 0.206 |
 
 ## Modules
 

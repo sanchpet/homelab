@@ -9,21 +9,24 @@ flux2 = "latest"
 # postinstall wires up the git hook + downloads hook envs on install.
 pre-commit = { version = "4.6.0", postinstall = "mise exec -- pre-commit install --install-hooks || true" }
 
-# Terraform/OpenTofu toolchain. Repo-wide (not scoped to terraform/) ON PURPOSE: the
+# Terraform toolchain. Repo-wide (not scoped to terraform/) ON PURPOSE: the
 # antonbabenko/pre-commit-terraform hooks run from the repo root and shell out to these
 # binaries, so they must be on PATH there — a terraform/-scoped mise.toml wouldn't reach
-# them. OpenTofu is used via TG_TF_PATH / PCT_TFPATH below.
-opentofu       = "1.12.2"
+# them. Terraform (not OpenTofu): the Yandex ecosystem (community modules + the yandex
+# provider) targets the Terraform registry; OpenTofu's registry lags badly (yandex 0.127
+# vs 0.206). 1.11+ is required for S3-native state locking (`use_lockfile`).
+terraform      = "1.15.6"
 terragrunt     = "1.0.8"
 terraform-docs = "0.24.0"  # module README injection (terraform_docs hook)
 tflint         = "0.63.1"  # lint (terraform_tflint hook)
 trivy          = "0.71.1"  # security scan (terraform_trivy hook)
 
 [env]
-# Make terragrunt and the pre-commit-terraform hooks use OpenTofu, not terraform.
-TG_TF_PATH        = "tofu"
-TERRAGRUNT_TFPATH = "tofu"  # deprecated alias, kept for older terragrunt
-PCT_TFPATH        = "tofu"
+# Point terragrunt + the pre-commit-terraform hooks at the terraform binary (the default,
+# set explicitly for clarity).
+TG_TF_PATH        = "terraform"
+TERRAGRUNT_TFPATH = "terraform"  # deprecated alias, kept for older terragrunt
+PCT_TFPATH        = "terraform"
 # Yandex Cloud context for the terraform/ units (identifiers, not secrets).
 YC_CLOUD_ID     = "b1gr5nrg10c4rnr8gehu"
 TF_STATE_BUCKET = "sanchpet-homelab-tfstate"

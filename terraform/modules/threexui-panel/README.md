@@ -29,7 +29,7 @@ owner; the panel password is sourced from SOPS, never hard-coded. Do not commit 
 
 | Name | Version |
 | ---- | ------- |
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.10.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.11.0 |
 | <a name="requirement_threexui"></a> [threexui](#requirement\_threexui) | ~> 3.0 |
 
 ## Providers
@@ -46,8 +46,8 @@ No modules.
 
 | Name | Type |
 | ---- | ---- |
-| threexui_inbound.this | resource |
-| threexui_inbound_client.this | resource |
+| [threexui_inbound.this](https://registry.terraform.io/providers/batonogov/threexui/latest/docs/resources/inbound) | resource |
+| [threexui_inbound_client.this](https://registry.terraform.io/providers/batonogov/threexui/latest/docs/resources/inbound_client) | resource |
 
 ## Inputs
 

@@ -1,12 +1,12 @@
 # terraform/ — instructions for Claude Code
 
 > Nested under the repo-root `CLAUDE.md` (which still applies: English-only artifacts, PR
-> workflow, no self-merge). This file adds the Terraform/OpenTofu conventions. Loaded
-> automatically when working under `terraform/`.
+> workflow, no self-merge). This file adds the Terraform conventions. Loaded automatically
+> when working under `terraform/`.
 
-Engine: **OpenTofu** (`tofu`), orchestrated by **Terragrunt**. Toolchain pinned in
-the repo-root `mise.toml`. Layout: `modules/` (own reusable modules) + `live/` (terragrunt
-units, grouped by domain: `live/yandex-cloud/…`, `live/threexui/…`).
+Engine: **Terraform**, orchestrated by **Terragrunt**. Toolchain pinned in the repo-root
+`mise.toml`. Layout: `modules/` (own reusable modules) + `live/` (terragrunt units,
+grouped by domain: `live/yandex-cloud/…`, `live/threexui/…`).
 
 ## Community-first for modules (BLOCKING) — the ladder
 
@@ -47,15 +47,18 @@ hooks (`.pre-commit-config.yaml`): `terragrunt_fmt`, `terraform_fmt`, `terraform
 (rewrites the README between the markers — re-stage if it changes), `terraform_tflint`,
 `terraform_trivy`. To run them by hand: `pre-commit run terraform_docs --all-files`.
 
-> The hooks run from the repo root and shell out to `tofu`/`terraform-docs`/`tflint`/`trivy`,
-> so those are pinned in the **repo-root `mise.toml`** (not a `terraform/`-scoped one) — they
-> must be on PATH where pre-commit runs.
+> The hooks run from the repo root and shell out to `terraform`/`terraform-docs`/`tflint`/
+> `trivy`, so those are pinned in the **repo-root `mise.toml`** (not a `terraform/`-scoped
+> one) — they must be on PATH where pre-commit runs.
 
-## Provider registry gotcha
+## Why Terraform, not OpenTofu
 
-OpenTofu resolves providers from `registry.opentofu.org`. If a provider is only on the
-Terraform registry (e.g. `batonogov/threexui`), fully-qualify the `source` with the
-hostname (`registry.terraform.io/<ns>/<name>`) — see `modules/threexui-panel/versions.tf`.
+Providers resolve from `registry.terraform.io` (bare `source = "<ns>/<name>"`). This is
+the deciding reason we run Terraform here, not OpenTofu: the Yandex ecosystem targets the
+Terraform registry, and OpenTofu's mirror lags badly (`yandex-cloud/yandex` was 0.127 on
+`registry.opentofu.org` vs 0.206 on `registry.terraform.io` — old enough to miss resources
+the community `terraform-yandex-storage-bucket` module needs). `batonogov/threexui` isn't
+on the OpenTofu registry at all. On Terraform both just work without qualifying the source.
 
 ## State + bootstrap
 

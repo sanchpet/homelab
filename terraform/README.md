@@ -1,20 +1,24 @@
-# Terraform / OpenTofu
+# Terraform
 
-Engine: **OpenTofu** (drop-in for Terraform, MPL-2.0), driven by **Terragrunt**. Toolchain
-pinned in the repo-root `mise.toml` (`opentofu`, `terragrunt`, `terraform-docs`, `tflint`,
-`trivy`; `TG_TF_PATH`/`PCT_TFPATH=tofu`).
-
-Two concerns live here:
+Engine: **Terraform**, driven by **Terragrunt**. Toolchain pinned in the repo-root
+`mise.toml` (`terraform`, `terragrunt`, `terraform-docs`, `tflint`, `trivy`). Terraform
+(not OpenTofu): the Yandex ecosystem targets the Terraform registry; OpenTofu's lags badly.
 
 ```
 terraform/
   modules/
     threexui-panel/   # configure a 3x-ui panel (inbounds/clients) via the threexui provider
+    yc-folder/        # a Yandex Cloud folder (own thin module)
   live/
     root.hcl          # shared remote state (Yandex S3, S3-native locking)
+    yandex-cloud/
+      yc-folder/      # the "homelab" folder        (bootstrap unit, local state)
+      yc-s3-tf-state/ # the state bucket + admin SA  (bootstrap unit, local state)
     threexui/
-      ger/            # the ips-ger-vps 3x-ui panel  (terragrunt unit)
+      ger/            # the ips-ger-vps 3x-ui panel  (terragrunt unit, S3 state)
 ```
+
+Standing it up from scratch: [`docs/`](../docs/) (numbered runbooks).
 
 ## Panel configuration (active — WP-043)
 
@@ -24,20 +28,18 @@ provider `batonogov/threexui`, closing the "config lives in SQLite, not Git" cav
 
 ### Remote state (Yandex Object Storage)
 
-State is in an S3-compatible Yandex bucket, locking is S3-native (`use_lockfile`,
-OpenTofu ≥ 1.10 — no DynamoDB). Credentials are a Yandex **static access key** via the
-environment, never in Git:
+State is in an S3-compatible Yandex bucket (`sanchpet-homelab-tfstate`), locking is
+S3-native (`use_lockfile`, Terraform ≥ 1.11 — no DynamoDB). The bucket + a storage-admin
+service account are created by the `live/yandex-cloud/` bootstrap units — see
+[`docs/2_yandex_cloud_bootstrap.md`](../docs/2_yandex_cloud_bootstrap.md). Credentials are
+that SA's **static access key**, via the environment, never in Git:
 
 ```sh
 export AWS_ACCESS_KEY_ID=<static-key-id>
 export AWS_SECRET_ACCESS_KEY=<static-key-secret>
 ```
 
-Bootstrap once (chicken-and-egg — the bucket holds the state, so it can't be created by
-this state). Create `homelab-tofu-state` against `https://storage.yandexcloud.net`
-(`yc storage bucket create` or AWS CLI with the Yandex endpoint) before the first apply.
-
-> If `tofu init` errors on checksums against Yandex S3, export
+> If `terraform init` errors on checksums against Yandex S3, export
 > `AWS_REQUEST_CHECKSUM_CALCULATION=when_required` (newer AWS SDK adds a checksum Yandex
 > rejects).
 

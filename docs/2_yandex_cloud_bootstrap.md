@@ -1,6 +1,6 @@
 # 2. Yandex Cloud — Terraform state bootstrap (Layer 0)
 
-Create the **folder** and the **S3 bucket** that hold Terraform state, with OpenTofu. Both
+Create the **folder** and the **S3 bucket** that hold Terraform state, with Terraform. Both
 are *bootstrap units*: they run on **local** state first (the bucket can't store its own
 state before it exists — chicken-and-egg), then their state is migrated into S3.
 

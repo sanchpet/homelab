@@ -4,7 +4,7 @@ Monorepo for managing personal infrastructure. Three IaC layers:
 
 | Layer | What | With | Directory |
 |-------|------|------|-----------|
-| **Layer 0** | YC state backend + 3x-ui panel-as-code (VPS provisioning later) | OpenTofu + Terragrunt | `terraform/` |
+| **Layer 0** | YC state backend + 3x-ui panel-as-code (VPS provisioning later) | Terraform + Terragrunt | `terraform/` |
 | **Layer 1** | node bootstrap: OS prep + k3s | Ansible | `ansible/` |
 | **Layer 2** | cluster state: infra + apps | Flux GitOps | `kubernetes/` |
 
