@@ -13,8 +13,18 @@
 #   export TF_STATE_BUCKET=...          # state bucket name
 #
 # Bootstrap (chicken-and-egg): the bucket holds the state, so it can't be created by this
-# state. The planned live/yandex-cloud/{yc-folder,yc-s3-tf-state} units create it on LOCAL
-# state first, then migrate into S3 (`terragrunt init -migrate-state`). See terraform/README.md.
+# state. The live/yandex-cloud/{yc-folder,yc-s3-tf-state} units create it on LOCAL state
+# first, then migrate into S3 (`terragrunt init -migrate-state`). See terraform/README.md.
+
+# Fleet-wide values shared by units. Read them with `include.root.locals.<name>` after
+# `include "root" { ... expose = true }`.
+locals {
+  cloud_id = get_env("YC_CLOUD_ID", "b1gr5nrg10c4rnr8gehu")
+  labels = {
+    project    = "homelab"
+    managed_by = "terraform"
+  }
+}
 
 remote_state {
   backend = "s3"

@@ -1,13 +1,18 @@
 # The S3 bucket that holds Terraform state for the whole homelab + its storage-admin
 # service account (static access key). Community module, pinned to the latest tag.
 #
-# Bootstrap unit: it creates the bucket that backs everything else, so on first apply it
-# runs on LOCAL state (transient, in .terragrunt-cache/). Right after apply — the bucket now
-# exists — migrate this unit onto S3: add `include "root"` + `terragrunt init -migrate-state`
+# State: S3 via `include "root"`, like every other unit. Chicken-and-egg caveat — this unit
+# CREATES that bucket, so when bootstrapping FROM ZERO comment out the `include` below for the
+# first `terragrunt apply` (local state); then restore it and `terragrunt init -migrate-state`
 # (see docs/2_yandex_cloud_bootstrap.md). Until you migrate, don't clear .terragrunt-cache.
 # Auth via env:
 #   export YC_TOKEN=$(yc iam create-token)   # IAM token creates the bucket (not S3 keys)
 #   export TF_STATE_BUCKET=sanchpet-homelab-tfstate
+
+include "root" {
+  path   = find_in_parent_folders("root.hcl")
+  expose = true
+}
 
 terraform {
   source = "git::https://github.com/terraform-yacloud-modules/terraform-yandex-storage-bucket.git?ref=v2.0.0"
@@ -21,7 +26,7 @@ generate "providers" {
   if_exists = "overwrite"
   contents  = <<EOF
 provider "yandex" {
-  cloud_id = "${get_env("YC_CLOUD_ID", "b1gr5nrg10c4rnr8gehu")}"
+  cloud_id = "${include.root.locals.cloud_id}"
 }
 
 provider "aws" {
@@ -62,8 +67,5 @@ inputs = {
     name = "sa-${local.bucket_name}"
   }
 
-  labels = {
-    project    = "homelab"
-    managed_by = "terraform"
-  }
+  labels = include.root.locals.labels
 }

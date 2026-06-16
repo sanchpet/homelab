@@ -1,23 +1,24 @@
 # Dedicated "homelab" folder in Yandex Cloud.
 #
-# Bootstrap unit: created before the S3 state bucket exists, so it runs on LOCAL state
-# (transient, in .terragrunt-cache/). Once yc-s3-tf-state has created the bucket, migrate
-# this unit onto S3 — add `include "root"` + `terragrunt init -migrate-state` (see
-# docs/2_yandex_cloud_bootstrap.md). Until you migrate, don't clear .terragrunt-cache or the
-# local state is lost (then re-import). Auth via env:
+# State: S3 via `include "root"`, like every other unit. Chicken-and-egg caveat — when
+# bootstrapping FROM ZERO (the bucket doesn't exist yet), comment out the `include` below for
+# the very first `terragrunt apply` so it runs on local state; then restore it and
+# `terragrunt init -migrate-state`. See docs/2_yandex_cloud_bootstrap.md. Auth via env:
 #   export YC_TOKEN=$(yc iam create-token)
 #   export YC_CLOUD_ID=<cloud id>   # or rely on the default below
+
+include "root" {
+  path   = find_in_parent_folders("root.hcl")
+  expose = true
+}
 
 terraform {
   source = "../../../modules/yc-folder"
 }
 
 inputs = {
-  cloud_id    = get_env("YC_CLOUD_ID", "b1gr5nrg10c4rnr8gehu")
+  cloud_id    = include.root.locals.cloud_id
   name        = "homelab"
   description = "Homelab infrastructure — k3s VPN stand + Terraform state"
-  labels = {
-    project    = "homelab"
-    managed_by = "terraform"
-  }
+  labels      = include.root.locals.labels
 }

@@ -7,45 +7,34 @@ state before it exists — chicken-and-egg), then their state is migrated into S
 Auth is from the environment (set automatically, see [1_init_repo.md](1_init_repo.md)):
 `YC_TOKEN`, `YC_CLOUD_ID`, `TF_STATE_BUCKET`.
 
-## 2.1 Folder
+Both units ship with `include "root"` (S3 backend). On a from-zero bootstrap the bucket
+doesn't exist yet, so the **first** apply must run on local state — comment out the
+`include "root" { … }` block in each unit's `terragrunt.hcl` for 2.1–2.2 (the unit header
+flags this), then restore it in 2.3.
+
+## 2.1 Folder (local state)
 
 ```bash
 cd terraform/live/yandex-cloud/yc-folder
 terragrunt apply
 ```
 
-## 2.2 State bucket + storage-admin service account
+## 2.2 State bucket + storage-admin service account (local state)
 
 ```bash
 cd ../yc-s3-tf-state
-terragrunt apply
-# static access key for the S3 backend:
-terragrunt output -raw storage_admin_access_key
-terragrunt output -raw storage_admin_secret_key
-```
+terragrunt apply        # creates the bucket + storage-admin SA
 
-Feed the key to the AWS-style env the S3 backend uses (Yandex Object Storage is
-S3-compatible). Keep it out of shell history / put it in a profile:
-
-```bash
+# the SA static key → the AWS-style env the S3 backend uses (keep out of shell history):
 export AWS_ACCESS_KEY_ID=$(terragrunt output -raw storage_admin_access_key)
 export AWS_SECRET_ACCESS_KEY=$(terragrunt output -raw storage_admin_secret_key)
 ```
 
 ## 2.3 Migrate the bootstrap state into S3
 
-The two units created the backend on **local** state (it didn't exist yet). Now that the
-bucket exists, move them onto S3 so they live with every other unit — do this **right after
-2.2** (don't clear `.terragrunt-cache` in between, or the local state is lost). Per unit, add
-the include to its `terragrunt.hcl`:
-
-```hcl
-include "root" {
-  path = find_in_parent_folders("root.hcl")
-}
-```
-
-then migrate:
+**Restore** the `include "root"` block in both units (so their backend is S3), then migrate —
+do this **right after 2.2** (don't clear `.terragrunt-cache` in between, or the local state is
+lost):
 
 ```bash
 cd ../yc-folder      && terragrunt init -migrate-state   # answer "yes"
