@@ -10,9 +10,10 @@ this node closes that gap. See `kubernetes/apps/base/vpn-watch/README.md` for th
 
 ## Onboarding sequence (owner runs the applies — `apply self` rule)
 
-1. **Provision + day-0 + hardening** (docs 1, 3): add the sweb RU node to
-   `ansible/inventory` next to the others, then `bootstrap.yml` (`-u root -k`) and the
-   `common` + `hardening` roles. Forwarding/firewall as for any node.
+1. **Provision + day-0 + hardening** (docs 1, 3): order the sweb RU VPS in the panel. The
+   `ansible/inventory/sweb-ru-vps/` entry is already in this PR (it targets the DNS name
+   `vps.ru.sweb.sanch.pet`, not an IP — set the A record in step 3). Then `bootstrap.yml`
+   (`-u root -k`) and the `common` + `hardening` roles. Forwarding/firewall as for any node.
 2. **k3s** (doc 4): install via the `k3s.orchestration` collection, single-server.
 3. **DNS:** point `ntfy.vps.ru.sweb.sanch.pet` and `status.vps.ru.sweb.sanch.pet` at the
    node IP (A records). Needed for cert-manager HTTP-01 on the `:80` Gateway listener.
