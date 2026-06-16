@@ -39,6 +39,30 @@ this node closes that gap. See `kubernetes/apps/base/vpn-watch/README.md` for th
 Once Flux reconciles: `infra-crds → infra-controllers → infra-configs → apps`. The
 `vpn-watch` release comes up in `monitoring`.
 
+## Image-pull egress (RU node) — through the German gost relay
+
+Pulling `ghcr.io` / `docker.io` from RU hits the DPI blackhole, so containerd would hang in
+`ImagePullBackOff`. Fix: route pulls through the **German gost relay** (the DPI-resistant TLS
+proxy already running on `ips-ger-vps`), not a third-party mirror.
+
+Mechanism (important distinctions):
+- k3s embeds **containerd**, which honours `HTTP(S)_PROXY` from the k3s service env — set via
+  `extra_service_envs` in this node's `group_vars`. **Not** `registries.yaml` (mirrors/auth)
+  and **not** cri-o (k3s uses containerd).
+- The relay is already a valid **HTTPS proxy** (real Let's Encrypt cert), and Go/containerd
+  speak `https://` proxies directly — so we point straight at it, **no local gost client**.
+  (Proof: the `curl -x 'https://gost...:7443'` one-liner in `apps/base/gost/README.md`.)
+- No bootstrap paradox: the relay lives on the *ger* cluster (already up), not on this node.
+
+The password is injected from ansible-vault as `gost_proxy_pass` (same value as the
+gost-config SOPS secret, user `sanchpet`) — never committed. Verify the relay before
+installing k3s:
+
+```bash
+curl -x 'https://sanchpet:PASS@gost.vps.ger.ips.sanch.pet:7443' https://api.ipify.org
+# -> the German VPS IP = egress works
+```
+
 ## Uptime Kuma — one manual step (state is in SQLite, not declarative)
 
 1. Open `https://status.vps.ru.sweb.sanch.pet`, create the admin.

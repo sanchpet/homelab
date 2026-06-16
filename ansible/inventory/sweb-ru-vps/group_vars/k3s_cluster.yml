@@ -23,3 +23,15 @@ server_config_yaml: |
   disable:
     - traefik
   write-kubeconfig-mode: "0644"
+
+# Image-pull egress through the German gost relay (DPI-resistant TLS proxy, already running
+# on ips-ger-vps with a valid Let's Encrypt cert). containerd (embedded in k3s) honours these
+# service envs and Go speaks https:// proxies directly — so we point straight at the relay,
+# no local gost client. NOT registries.yaml (mirrors/auth) and NOT cri-o.
+# gost_proxy_pass: define under ansible-vault (same value as the gost-config SOPS secret,
+# user sanchpet) — keeps the credential out of committed plaintext.
+# k3s also auto-appends the cluster Pod/Service ranges to NO_PROXY; listed here explicitly.
+extra_service_envs:
+  - "HTTP_PROXY=https://sanchpet:{{ gost_proxy_pass }}@gost.vps.ger.ips.sanch.pet:7443"
+  - "HTTPS_PROXY=https://sanchpet:{{ gost_proxy_pass }}@gost.vps.ger.ips.sanch.pet:7443"
+  - "NO_PROXY=127.0.0.1,localhost,10.42.0.0/16,10.43.0.0/16,.svc,.cluster.local,vps.ru.sweb.sanch.pet"
