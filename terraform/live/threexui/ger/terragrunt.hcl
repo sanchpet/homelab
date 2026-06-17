@@ -45,4 +45,10 @@ inputs = {
   }
 
   clients = local.clients
+
+  # Subscription server, fronted by the cluster Gateway (sub-https:8443 → xui-sub:2096).
+  # The module generates a random URL path; sub_uri makes generated links use this base.
+  subscription = {
+    public_url = "https://sub.vps.ger.ips.sanch.pet:8443"
+  }
 }

@@ -62,6 +62,26 @@ variable "panel_password_version" {
   default     = 1
 }
 
+# --- Subscription server ---
+#
+# null → leave the panel's subscription settings untouched. When set, the module enables
+# the sub server and generates a RANDOM URL path (obscurity, like webBasePath — it lives in
+# state, not Git). `public_url` is the Gateway-fronted base (scheme://host:port, no trailing
+# path); generated subscription links use `<public_url>/<random-path>/<sub_id>`.
+
+variable "subscription" {
+  description = "Subscription server settings (null = untouched)."
+  type = object({
+    public_url  = string # e.g. https://sub.vps.ger.ips.sanch.pet:8443
+    enabled     = optional(bool, true)
+    port        = optional(number, 2096)
+    json_enable = optional(bool, true)
+    path_length = optional(number, 16) # random URI path length
+    title       = optional(string)
+  })
+  default = null
+}
+
 # --- Desired state: inbounds ---
 #
 # VLESS + Reality focused (the homelab's actual workload). Reality keypair and short_ids
