@@ -19,12 +19,12 @@ variable "base_path" {
 }
 
 variable "username" {
-  description = "Panel admin username."
+  description = "Panel admin username (steady-state / desired)."
   type        = string
 }
 
 variable "password" {
-  description = "Panel admin password."
+  description = "Panel admin password (steady-state / desired). When manage_panel_user is true, the panel is rotated to this; it's applied write-only, so it is NOT stored in state."
   type        = string
   sensitive   = true
 }
@@ -33,6 +33,53 @@ variable "insecure_skip_verify" {
   description = "Skip TLS verification (true when the panel uses a self-signed cert; over a localhost tunnel the endpoint is plain HTTP, so usually false)."
   type        = bool
   default     = false
+}
+
+# --- Panel admin user management (optional credential rotation) ---
+
+variable "manage_panel_user" {
+  description = "Manage the panel admin user via threexui_panel_user — rotate it to username/password. The new password is applied write-only (not persisted in state)."
+  type        = bool
+  default     = true
+}
+
+variable "bootstrap_username" {
+  description = "Initial/old panel username for first-run rotation (e.g. \"admin\"). Set together with bootstrap_password. On 3x-ui v3 it is tried only if the steady-state username/password is rejected — so it can stay set harmlessly after rotation."
+  type        = string
+  default     = null
+}
+
+variable "bootstrap_password" {
+  description = "Initial/old panel password for first-run rotation (e.g. \"admin\"). Set together with bootstrap_username."
+  type        = string
+  default     = null
+  sensitive   = true
+}
+
+variable "panel_password_version" {
+  description = "Bump this to force re-sending the panel password (write-only passwords need a version to re-apply). Increment when you change the password."
+  type        = number
+  default     = 1
+}
+
+# --- Subscription server ---
+#
+# null → leave the panel's subscription settings untouched. When set, the module enables
+# the sub server and generates a RANDOM URL path (obscurity, like webBasePath — it lives in
+# state, not Git). `public_url` is the Gateway-fronted base (scheme://host:port, no trailing
+# path); generated subscription links use `<public_url>/<random-path>/<sub_id>`.
+
+variable "subscription" {
+  description = "Subscription server settings (null = untouched)."
+  type = object({
+    public_url  = string # e.g. https://sub.vps.ger.ips.sanch.pet:8443
+    enabled     = optional(bool, true)
+    port        = optional(number, 2096)
+    json_enable = optional(bool, true)
+    path_length = optional(number, 16) # random URI path length
+    title       = optional(string)
+  })
+  default = null
 }
 
 # --- Desired state: inbounds ---

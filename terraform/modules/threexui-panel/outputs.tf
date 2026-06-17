@@ -22,3 +22,17 @@ output "client_sub_ids" {
   value       = { for k, v in threexui_inbound_client.this : k => v.sub_id }
   sensitive   = true
 }
+
+output "subscription_base_url" {
+  description = "Public subscription base URL (append a client sub_id). Contains the random path → sensitive. null when subscription is unset."
+  value       = var.subscription != null ? "${var.subscription.public_url}/${random_string.sub_path[0].result}/" : null
+  sensitive   = true
+}
+
+output "client_subscription_urls" {
+  description = "Full subscription URL per client (random path + sub_id) → sensitive."
+  value = var.subscription == null ? {} : {
+    for k, v in threexui_inbound_client.this : k => "${var.subscription.public_url}/${random_string.sub_path[0].result}/${v.sub_id}"
+  }
+  sensitive = true
+}

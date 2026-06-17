@@ -10,6 +10,21 @@ provider "threexui" {
   username             = var.username
   password             = var.password
   insecure_skip_verify = var.insecure_skip_verify
+
+  # First-run rotation: authenticate with the old creds if the steady-state ones are
+  # rejected (3x-ui v3), so threexui_panel_user can rotate the panel in the same apply.
+  bootstrap_username = var.bootstrap_username
+  bootstrap_password = var.bootstrap_password
+}
+
+# Manage the panel admin user — rotate it to username/password. password_wo is write-only
+# (Terraform >= 1.11): the new password is sent to the panel but never stored in state.
+resource "threexui_panel_user" "admin" {
+  count = var.manage_panel_user ? 1 : 0
+
+  username            = var.username
+  password_wo         = var.password
+  password_wo_version = var.panel_password_version
 }
 
 resource "threexui_inbound" "this" {
@@ -60,4 +75,28 @@ resource "threexui_inbound_client" "this" {
   comment     = each.value.comment
   tg_id       = each.value.tg_id
   sub_id      = each.value.sub_id # null => panel auto-generates
+}
+
+# --- Subscription server ---
+# A random URL path (obscurity — generated here, kept in state, not Git) plus sub_uri (the
+# reverse-proxy / public base) so the panel emits links pointing at the Gateway, not :2096.
+
+resource "random_string" "sub_path" {
+  count   = var.subscription != null ? 1 : 0
+  length  = var.subscription.path_length
+  special = false
+  upper   = false
+}
+
+resource "threexui_panel_subscription" "settings" {
+  count = var.subscription != null ? 1 : 0
+
+  sub_enable      = var.subscription.enabled
+  sub_json_enable = var.subscription.json_enable
+  sub_port        = var.subscription.port
+  sub_title       = var.subscription.title
+
+  # Random path the sub server listens on, and the public URI used to build links.
+  sub_path = "/${random_string.sub_path[0].result}/"
+  sub_uri  = "${var.subscription.public_url}/${random_string.sub_path[0].result}/"
 }
