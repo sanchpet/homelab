@@ -10,6 +10,21 @@ provider "threexui" {
   username             = var.username
   password             = var.password
   insecure_skip_verify = var.insecure_skip_verify
+
+  # First-run rotation: authenticate with the old creds if the steady-state ones are
+  # rejected (3x-ui v3), so threexui_panel_user can rotate the panel in the same apply.
+  bootstrap_username = var.bootstrap_username
+  bootstrap_password = var.bootstrap_password
+}
+
+# Manage the panel admin user — rotate it to username/password. password_wo is write-only
+# (Terraform >= 1.11): the new password is sent to the panel but never stored in state.
+resource "threexui_panel_user" "admin" {
+  count = var.manage_panel_user ? 1 : 0
+
+  username            = var.username
+  password_wo         = var.password
+  password_wo_version = var.panel_password_version
 }
 
 resource "threexui_inbound" "this" {

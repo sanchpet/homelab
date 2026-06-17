@@ -30,6 +30,11 @@ inputs = {
   username  = local.panel.username
   password  = local.panel.password
 
+  # First-run rotation from admin/admin → steady-state (remove from secrets.sops.yaml once
+  # the panel is rotated; optional after that).
+  bootstrap_username = try(local.panel.bootstrap_username, null)
+  bootstrap_password = try(local.panel.bootstrap_password, null)
+
   inbounds = {
     reality = {
       port                 = 443

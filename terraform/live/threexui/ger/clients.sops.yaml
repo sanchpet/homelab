@@ -1,0 +1,20 @@
+clients:
+    sanchpet-ger:
+        inbound_key: reality
+        email: ENC[AES256_GCM,data:6CWszeugh0HZcyav,iv:gANPc39teltlzHJlU+NzByhum//2VOvHXjE2JFraSrI=,tag:y1XOasGzCjgtLBG29bg9cw==,type:str]
+        comment: ENC[AES256_GCM,data:uakuHT8=,iv:tshpUZrI8zbranrUaNrk4KRQik9GTI/ROlteVp6uU+Y=,tag:7LPe4JIc9bc+Joz++NaWTA==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBTdmw2aVd6Q2JsRTJSbDBH
+            eTdUM3ZONitSNVlZb0xCOUIwbm5DWVRUUkJZClZ0L1NrQVdUazJlT1d3bTJtV2t4
+            N1VqVGRhOTczZkNtUEV5QVNDZHpwc00KLS0tIHhxSDhkNGg4dWNBSEc4V0pKc1hD
+            aVY4blh5RVhQcVg2SDU0YWZLOEdldXMKvUCj+GB7kyIvOSoVWy6d2PsplRqJuZbH
+            K/Qi+CBe3IziZVkGzWOQMRvp5i94NKQIWubcjFg9FbTcwVVq/wVXww==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1ayd37q6cyqrh2d2jgz04jx0guxmj483d0tchhqd6sd83ukcf4vusm4p63q
+    encrypted_regex: ^(email|comment|tg_id|sub_id|password|auth)$
+    lastmodified: "2026-06-17T13:43:06Z"
+    mac: ENC[AES256_GCM,data:VULHX+XJ69IuedJRKhIWk7nsIBJZTgK2GkHEobmDvw/hLWt7chP9TuYj3EN+truaOrfGKA7voDfou99fjM4GOgFf1D1g7jws2dGhAQZ8BejHyZQ8tPFIrzUlJcnpyFBfO2IESpQai37jrTf1CjDdTsudO0owVeFfL08QuoQifaI=,iv:WVAn5xeAfhoVE8kFsksjdMAQxJHi3DOlgxor9OnIKII=,tag:4vAvx95fqsOg/ZzHgtYKSQ==,type:str]
+    version: 3.13.1
