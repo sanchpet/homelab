@@ -11,7 +11,7 @@ spec:
       namespace: nginx-gateway
       sectionName: ntfy-https
   hostnames:
-    - ntfy.vps.ru.sweb.sanch.pet
+    - ntfy.watcher.ru.sweb.sanch.pet
   rules:
     - backendRefs:
         - name: ntfy
@@ -29,7 +29,7 @@ spec:
       namespace: nginx-gateway
       sectionName: status-https
   hostnames:
-    - status.vps.ru.sweb.sanch.pet
+    - status.watcher.ru.sweb.sanch.pet
   rules:
     - backendRefs:
         - name: uptime-kuma

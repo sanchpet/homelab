@@ -5,17 +5,17 @@ RU**, where DPI actually bites. Offshore monitors report "up" while RU users are
 this node closes that gap. See `kubernetes/apps/base/vpn-watch/README.md` for the app.
 
 > Provider: SpaceWeb (sweb), region RU, type vps → cluster `sweb-ru-vps`,
-> domain base `vps.ru.sweb.sanch.pet`. This node runs **no Reality inbound** — it is a
+> domain base `watcher.ru.sweb.sanch.pet`. This node runs **no Reality inbound** — it is a
 > probe, not a VPN endpoint.
 
 ## Onboarding sequence (owner runs the applies — `apply self` rule)
 
 1. **Provision + day-0 + hardening** (docs 1, 3): order the sweb RU VPS in the panel. The
    `ansible/inventory/sweb-ru-vps/` entry is already in this PR (it targets the DNS name
-   `vps.ru.sweb.sanch.pet`, not an IP — set the A record in step 3). Then `bootstrap.yml`
+   `watcher.ru.sweb.sanch.pet`, not an IP — set the A record in step 3). Then `bootstrap.yml`
    (`-u root -k`) and the `common` + `hardening` roles. Forwarding/firewall as for any node.
 2. **k3s** (doc 4): install via the `k3s.orchestration` collection, single-server.
-3. **DNS:** point `ntfy.vps.ru.sweb.sanch.pet` and `status.vps.ru.sweb.sanch.pet` at the
+3. **DNS:** point `ntfy.watcher.ru.sweb.sanch.pet` and `status.watcher.ru.sweb.sanch.pet` at the
    node IP (A records). Needed for cert-manager HTTP-01 on the `:80` Gateway listener.
 4. **Flux bootstrap** (doc 4) — generates `clusters/sweb-ru-vps/flux-system/` and commits:
    ```bash
@@ -65,11 +65,11 @@ curl -x 'https://sanchpet:PASS@gost.vps.ger.ips.sanch.pet:7443' https://api.ipif
 
 ## Uptime Kuma — one manual step (state is in SQLite, not declarative)
 
-1. Open `https://status.vps.ru.sweb.sanch.pet`, create the admin.
+1. Open `https://status.watcher.ru.sweb.sanch.pet`, create the admin.
 2. Per endpoint `stableId` (`/api/v1/proxies` on xray-checker) add an HTTP(s) monitor:
    `http://xray-checker.monitoring:2112/config/{stableId}`, accept `200`, interval 60s,
    retries 3.
-3. Notifications: `ntfy` (`https://ntfy.vps.ru.sweb.sanch.pet`, topic `vpn-alerts`) **and**
+3. Notifications: `ntfy` (`https://ntfy.watcher.ru.sweb.sanch.pet`, topic `vpn-alerts`) **and**
    an SMS provider (RU-reachable). Attach both to every monitor.
 4. ntfy is `deny-all` → mint an access token for Kuma (publish) and read access for the
    friends' app subscriptions.

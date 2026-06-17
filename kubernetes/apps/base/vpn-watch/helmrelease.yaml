@@ -80,7 +80,7 @@ spec:
               tag: "v2.11.0"
             args: ["serve"]
             env:
-              NTFY_BASE_URL: "https://ntfy.vps.ru.sweb.sanch.pet"
+              NTFY_BASE_URL: "https://ntfy.watcher.ru.sweb.sanch.pet"
               NTFY_BEHIND_PROXY: "true"
               NTFY_CACHE_FILE: "/var/cache/ntfy/cache.db"
               NTFY_AUTH_FILE: "/var/lib/ntfy/auth.db"

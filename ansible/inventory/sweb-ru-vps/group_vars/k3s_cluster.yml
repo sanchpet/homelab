@@ -34,4 +34,4 @@ server_config_yaml: |
 extra_service_envs:
   - "HTTP_PROXY=https://sanchpet:{{ gost_proxy_pass }}@gost.vps.ger.ips.sanch.pet:7443"
   - "HTTPS_PROXY=https://sanchpet:{{ gost_proxy_pass }}@gost.vps.ger.ips.sanch.pet:7443"
-  - "NO_PROXY=127.0.0.1,localhost,10.42.0.0/16,10.43.0.0/16,.svc,.cluster.local,vps.ru.sweb.sanch.pet"
+  - "NO_PROXY=127.0.0.1,localhost,10.42.0.0/16,10.43.0.0/16,.svc,.cluster.local,watcher.ru.sweb.sanch.pet"

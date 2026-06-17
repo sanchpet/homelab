@@ -19,24 +19,24 @@ spec:
     - name: ntfy-https
       port: 443
       protocol: HTTPS
-      hostname: ntfy.vps.ru.sweb.sanch.pet
+      hostname: ntfy.watcher.ru.sweb.sanch.pet
       tls:
         mode: Terminate
         certificateRefs:
           - kind: Secret
-            name: ntfy-vps-ru-tls
+            name: ntfy-watcher-tls
       allowedRoutes:
         namespaces:
           from: All
     - name: status-https
       port: 443
       protocol: HTTPS
-      hostname: status.vps.ru.sweb.sanch.pet
+      hostname: status.watcher.ru.sweb.sanch.pet
       tls:
         mode: Terminate
         certificateRefs:
           - kind: Secret
-            name: status-vps-ru-tls
+            name: status-watcher-tls
       allowedRoutes:
         namespaces:
           from: All
