@@ -20,8 +20,10 @@ terraform {
 }
 
 locals {
-  panel   = yamldecode(sops_decrypt_file("${get_terragrunt_dir()}/secrets.sops.yaml"))
-  clients = yamldecode(sops_decrypt_file("${get_terragrunt_dir()}/clients.sops.yaml")).clients
+  panel = yamldecode(sops_decrypt_file("${get_terragrunt_dir()}/secrets.sops.yaml"))
+  # clients.sops.yaml stores the whole client map as a single encrypted block-scalar string
+  # (so SOPS hides the handles too, not just values) — decode the file, then the inner YAML.
+  clients = yamldecode(yamldecode(sops_decrypt_file("${get_terragrunt_dir()}/clients.sops.yaml")).clients)
 }
 
 inputs = {

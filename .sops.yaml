@@ -5,11 +5,13 @@ creation_rules:
   - path_regex: kubernetes/.*\.sops\.ya?ml$
     encrypted_regex: ^(data|stringData)$
     age: age1ayd37q6cyqrh2d2jgz04jx0guxmj483d0tchhqd6sd83ukcf4vusm4p63q
-  # terraform/ VPN client lists (3x-ui). The client identities are PII — encrypt them. The
-  # map keys (local labels) stay readable for diff review, so use codenames there, not names.
+  # terraform/ VPN client lists (3x-ui). The whole client list is PII (the panel public is a
+  # public repo by design), and SOPS can't encrypt YAML *keys* — so the list is stored as a
+  # single `clients:` block-scalar string and that whole value is encrypted. Nothing about
+  # the clients (not even count/handles) is visible in Git. The unit yamldecodes it twice.
   # More specific than the generic terraform rule below, so it must come first.
   - path_regex: terraform/.*/clients\.sops\.ya?ml$
-    encrypted_regex: ^(email|comment|tg_id|sub_id|password|auth)$
+    encrypted_regex: ^clients$
     age: age1ayd37q6cyqrh2d2jgz04jx0guxmj483d0tchhqd6sd83ukcf4vusm4p63q
   # terraform/ panel credentials (3x-ui admin user/pass + webBasePath). Plain YAML keys,
   # so encrypt the values by key name. Same age key (private key in the owner's pw manager).
