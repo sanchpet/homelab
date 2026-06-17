@@ -47,4 +47,11 @@ Verify: `terragrunt plan` shows no drift, the inbound appears in the panel, and 
 connects via the generated VLESS link (build it from the `client_sub_ids` / `client_uuids`
 outputs). Adding a panel = a new `terraform/live/threexui/<cluster>/`.
 
+> **Subscription needs a one-time panel restart.** The threexui provider doesn't restart
+> the panel when subscription settings change, so right after enabling/changing the sub
+> server the subscription URL 404s until the panel restarts
+> (`kubectl --context <cluster> -n vpn rollout restart deploy/3x-ui`, or the panel's Restart
+> button). Provider fix pending — batonogov/terraform-provider-threexui#292; once released
+> and the pinned version bumped, this is automatic.
+
 Done — the stack is up. Day-2 (upgrades, new clusters): the per-layer READMEs.
