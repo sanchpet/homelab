@@ -1,14 +1,15 @@
-# live/ger — the 3x-ui panel on the ips-ger-vps cluster.
+# live/threexui/ger — the 3x-ui panel on the ips-ger-vps cluster.
 #
 # The panel is ClusterIP-only (svc/xui-panel:2053, not public). Before apply, open a
 # tunnel so http://localhost:2053 reaches it:
 #   VPN off:  ssh -L 2053:<xui-panel-clusterIP>:2053 <ger-node>
 #   VPN on:   kubectl port-forward -n vpn svc/xui-panel 2053:2053
-# Then: cd terraform/live/ger && terragrunt apply
+# Then: cd terraform/live/threexui/ger && terragrunt apply
 #
-# Panel credentials (admin user/pass + webBasePath) come from the SOPS-encrypted
-# secrets.sops.yaml in this dir — see secrets.sops.yaml.example. The age private key must
-# be available locally for sops to decrypt (SOPS_AGE_KEY_FILE or ~/.config/sops/age/keys.txt).
+# Two SOPS-encrypted files in this dir (need the age key locally — SOPS_AGE_KEY_FILE or
+# ~/.config/sops/age/keys.txt):
+#   secrets.sops.yaml  — panel admin user/pass + webBasePath (see *.example)
+#   clients.sops.yaml  — the VPN client list (identities are PII) (see *.example)
 
 include "root" {
   path = find_in_parent_folders("root.hcl")
@@ -19,7 +20,8 @@ terraform {
 }
 
 locals {
-  panel = yamldecode(sops_decrypt_file("${get_terragrunt_dir()}/secrets.sops.yaml"))
+  panel   = yamldecode(sops_decrypt_file("${get_terragrunt_dir()}/secrets.sops.yaml"))
+  clients = yamldecode(sops_decrypt_file("${get_terragrunt_dir()}/clients.sops.yaml")).clients
 }
 
 inputs = {
@@ -37,11 +39,5 @@ inputs = {
     }
   }
 
-  clients = {
-    owner = {
-      inbound_key = "reality"
-      email       = "owner@ger"
-      comment     = "owner"
-    }
-  }
+  clients = local.clients
 }

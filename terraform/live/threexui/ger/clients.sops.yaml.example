@@ -1,0 +1,16 @@
+# VPN client list for the ger panel — SOPS-encrypted (client identities are PII). Create
+# the real file:
+#   cd terraform/live/threexui/ger
+#   cp clients.sops.yaml.example clients.sops.yaml
+#   $EDITOR clients.sops.yaml
+#   sops --encrypt --in-place clients.sops.yaml   # needs the repo age key
+#
+# Map keys are arbitrary Terraform resource labels — use CODENAMES, not real names: the keys
+# stay readable in Git (only email/comment/tg_id/sub_id values are encrypted). Per client:
+#   inbound_key (required) → a key in the unit's `inbounds`; email (required, unique per panel);
+#   optional flow / enable / total_gb / expiry_time / limit_ip / comment / tg_id / sub_id.
+clients:
+  client-a:
+    inbound_key: reality
+    email: a@ger
+    comment: owner

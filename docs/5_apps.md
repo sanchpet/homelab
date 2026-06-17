@@ -29,10 +29,17 @@ Then declare the inbound + clients (state goes to S3 — doc 2):
 
 ```bash
 cd terraform/live/threexui/<cluster>
-cp secrets.sops.yaml.example secrets.sops.yaml   # panel admin user/pass + webBasePath
-sops --encrypt --in-place secrets.sops.yaml      # needs the repo age key
 export SOPS_AGE_KEY_FILE=$HOME/.config/sops/age/keys.txt
-# edit the inbound SNI + client emails in terragrunt.hcl, then:
+
+# panel admin user/pass + webBasePath:
+cp secrets.sops.yaml.example secrets.sops.yaml && $EDITOR secrets.sops.yaml
+sops --encrypt --in-place secrets.sops.yaml
+
+# VPN client list — identities are PII, so it's encrypted (not in terragrunt.hcl):
+cp clients.sops.yaml.example clients.sops.yaml && $EDITOR clients.sops.yaml
+sops --encrypt --in-place clients.sops.yaml
+
+# set the inbound SNI in terragrunt.hcl (clients live in clients.sops.yaml), then:
 terragrunt apply
 ```
 
