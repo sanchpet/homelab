@@ -36,9 +36,9 @@ inputs = {
   username  = local.panel.username
   password  = local.panel.password
 
-  # Onboarding an EXISTING, already-rotated panel via import — do NOT manage/rotate the admin
-  # user (no bootstrap creds needed; secrets.sops.yaml holds the panel's current creds).
-  manage_panel_user = false
+  # manage_panel_user defaults to true (like ger): the module owns the admin user and keeps it
+  # rotated to username/password (applied write-only). secrets.sops.yaml holds the current
+  # creds, so this is a no-op rotation until the password is intentionally changed.
 
   # Mirrors the ger inbound (same port/protocol); only the Reality camouflage differs:
   # USA fronts www.microsoft.com (ger fronts www.amazon.com). reality_private_key /
@@ -55,10 +55,15 @@ inputs = {
 
   clients = local.clients
 
-  # Subscription management DEFERRED during onboarding. The live USA panel already has a
-  # sub_path; if the module created its own random_string.sub_path it would rotate the path
-  # and break every existing subscription URL. Enable this only after importing the existing
-  # sub settings + sub_path (follow-up). Until then the panel's current subscription is
-  # untouched. Target public_url for later: https://sub.vps-2.usa.ips.sanch.pet:8443
-  subscription = null
+  # Subscription server (fronted by the cluster Gateway). The existing 3x-ui-generated path is
+  # adopted by importing random_string.sub_path + threexui_panel_subscription; the path_* knobs
+  # are set to match what `terraform import` records for random_string (all char classes true),
+  # so the import is a no-op and existing subscription URLs are preserved. See README §Subscription.
+  subscription = {
+    public_url   = "https://sub.vps-2.usa.ips.sanch.pet:8443"
+    json_enable  = false # live panel: subJsonEnable = false
+    path_length  = 20    # len("vTA72nw8jcJ3jkHB6anK")
+    path_special = true  # import sets random_string char-class flags to provider defaults
+    path_upper   = true  # (all true) — match them so the import is a no-op
+  }
 }

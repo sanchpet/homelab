@@ -76,8 +76,20 @@ variable "subscription" {
     enabled     = optional(bool, true)
     port        = optional(number, 2096)
     json_enable = optional(bool, true)
-    path_length = optional(number, 16) # random URI path length
     title       = optional(string)
+
+    # URI path. Leave `path` null to GENERATE a random one (obscurity; lives in state, not
+    # Git). The path_* knobs are passed straight to random_string — expose them so an
+    # EXISTING 3x-ui path can be imported without a forced replacement: `terraform import`
+    # sets random_string's char-class flags to the provider defaults (all true), so to make
+    # the import a no-op set the knobs to match (e.g. path_upper = true for a mixed-case path).
+    # Set `path` explicitly to adopt a literal path and skip generation entirely.
+    path         = optional(string)
+    path_length  = optional(number, 16)
+    path_special = optional(bool, false)
+    path_upper   = optional(bool, false)
+    path_lower   = optional(bool, true)
+    path_numeric = optional(bool, true)
   })
   default = null
 }
