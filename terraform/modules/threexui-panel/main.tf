@@ -81,11 +81,21 @@ resource "threexui_inbound_client" "this" {
 # A random URL path (obscurity — generated here, kept in state, not Git) plus sub_uri (the
 # reverse-proxy / public base) so the panel emits links pointing at the Gateway, not :2096.
 
+locals {
+  # Explicit path wins; otherwise the generated random path. The path_* knobs are exposed
+  # (see variables.tf) so an existing 3x-ui path can be imported without a forced replacement.
+  sub_path = var.subscription == null ? null : (
+    var.subscription.path != null ? var.subscription.path : random_string.sub_path[0].result
+  )
+}
+
 resource "random_string" "sub_path" {
-  count   = var.subscription != null ? 1 : 0
+  count   = var.subscription != null && var.subscription.path == null ? 1 : 0
   length  = var.subscription.path_length
-  special = false
-  upper   = false
+  special = var.subscription.path_special
+  upper   = var.subscription.path_upper
+  lower   = var.subscription.path_lower
+  numeric = var.subscription.path_numeric
 }
 
 resource "threexui_panel_subscription" "settings" {
@@ -97,6 +107,6 @@ resource "threexui_panel_subscription" "settings" {
   sub_title       = var.subscription.title
 
   # Random path the sub server listens on, and the public URI used to build links.
-  sub_path = "/${random_string.sub_path[0].result}/"
-  sub_uri  = "${var.subscription.public_url}/${random_string.sub_path[0].result}/"
+  sub_path = "/${local.sub_path}/"
+  sub_uri  = "${var.subscription.public_url}/${local.sub_path}/"
 }

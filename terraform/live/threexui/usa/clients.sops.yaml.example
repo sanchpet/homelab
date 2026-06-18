@@ -1,0 +1,20 @@
+# VPN client list for the usa panel — fully SOPS-encrypted (client identities are PII and
+# this is a public repo). The whole list is one `clients:` block-scalar STRING so SOPS hides
+# even the map keys/handles (it can't encrypt YAML keys directly). Create the real file:
+#   cd terraform/live/threexui/usa
+#   cp clients.sops.yaml.example clients.sops.yaml
+#   sops clients.sops.yaml          # edit the inner YAML (it opens decrypted); save → re-encrypts
+#   # (or: $EDITOR clients.sops.yaml then `sops --encrypt --in-place clients.sops.yaml`)
+#
+# Inside the block, each map key is the client handle (stable → it's the Terraform for_each
+# key; the panel client `email` should match it). Per client:
+#   inbound_key (required) → a key in the unit's `inbounds`; email (required, unique per panel);
+#   optional flow / enable / total_gb / expiry_time / limit_ip / comment / tg_id / sub_id.
+#
+# On IMPORT: list every client that already exists on the live USA panel here first, then
+# import them (README §Import) so plan is a no-op. Only after that add new clients.
+clients: |
+  cudy-openwrt:
+    inbound_key: reality
+    email: cudy-openwrt
+    comment: pocket OpenWrt WISP router (WP-045)

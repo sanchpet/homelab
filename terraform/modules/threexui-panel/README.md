@@ -37,8 +37,8 @@ owner; the panel password is sourced from SOPS, never hard-coded. Do not commit 
 
 | Name | Version |
 | ---- | ------- |
-| <a name="provider_random"></a> [random](#provider\_random) | ~> 3.0 |
-| <a name="provider_threexui"></a> [threexui](#provider\_threexui) | ~> 3.0 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.9.0 |
+| <a name="provider_threexui"></a> [threexui](#provider\_threexui) | 3.14.2 |
 
 ## Modules
 
@@ -68,7 +68,7 @@ No modules.
 | <a name="input_manage_panel_user"></a> [manage\_panel\_user](#input\_manage\_panel\_user) | Manage the panel admin user via threexui\_panel\_user — rotate it to username/password. The new password is applied write-only (not persisted in state). | `bool` | `true` | no |
 | <a name="input_panel_password_version"></a> [panel\_password\_version](#input\_panel\_password\_version) | Bump this to force re-sending the panel password (write-only passwords need a version to re-apply). Increment when you change the password. | `number` | `1` | no |
 | <a name="input_password"></a> [password](#input\_password) | Panel admin password (steady-state / desired). When manage\_panel\_user is true, the panel is rotated to this; it's applied write-only, so it is NOT stored in state. | `string` | n/a | yes |
-| <a name="input_subscription"></a> [subscription](#input\_subscription) | Subscription server settings (null = untouched). | <pre>object({<br/>    public_url  = string # e.g. https://sub.vps.ger.ips.sanch.pet:8443<br/>    enabled     = optional(bool, true)<br/>    port        = optional(number, 2096)<br/>    json_enable = optional(bool, true)<br/>    path_length = optional(number, 16) # random URI path length<br/>    title       = optional(string)<br/>  })</pre> | `null` | no |
+| <a name="input_subscription"></a> [subscription](#input\_subscription) | Subscription server settings (null = untouched). | <pre>object({<br/>    public_url  = string # e.g. https://sub.vps.ger.ips.sanch.pet:8443<br/>    enabled     = optional(bool, true)<br/>    port        = optional(number, 2096)<br/>    json_enable = optional(bool, true)<br/>    title       = optional(string)<br/><br/>    # URI path. Leave `path` null to GENERATE a random one (obscurity; lives in state, not<br/>    # Git). The path_* knobs are passed straight to random_string — expose them so an<br/>    # EXISTING 3x-ui path can be imported without a forced replacement: `terraform import`<br/>    # sets random_string's char-class flags to the provider defaults (all true), so to make<br/>    # the import a no-op set the knobs to match (e.g. path_upper = true for a mixed-case path).<br/>    # Set `path` explicitly to adopt a literal path and skip generation entirely.<br/>    path         = optional(string)<br/>    path_length  = optional(number, 16)<br/>    path_special = optional(bool, false)<br/>    path_upper   = optional(bool, false)<br/>    path_lower   = optional(bool, true)<br/>    path_numeric = optional(bool, true)<br/>  })</pre> | `null` | no |
 | <a name="input_username"></a> [username](#input\_username) | Panel admin username (steady-state / desired). | `string` | n/a | yes |
 
 ## Outputs
