@@ -1,0 +1,16 @@
+clients: ENC[AES256_GCM,data:mFnEzHxr8a2NBWon851HaBrvzXa9uJR3NhRg962sbrmmLgjbcvXRwV2MUzakyMD4tTXW+XBTMTKK8kPtXcDzv3DDSsMNY6AorrfMsabMzQM8ljbk3BuADUpWgbYnQU1XUJGWhqwzFH5/+w9LeSO4BZAGTxmDZO/za20nSsvmAD7uKPotyNTvhfjwT9V2GlY4+ldcICNUTBdOes5WYygIh9JhJELAAT0bCMejH3SItRgXtNYb6goJEGDTmyS1FjviVR0OkqkW5ocFHo4PhGCWhRZteCiVsCf6I5MOiOzuj3twr/NcBKZmZ2fZ9YltltERRLFZ7IN+0KH9M/mVpNJTO+6+KL9+vhbActWtj6LNrjVqGxNSZ3hUXtTR/hMjTu7QKhLihu3v82/Qh6PNCzntAOkmOor07H/nQmQ6L3fNiBzoa2wsyST+oRXQkH4D5lx49r4t61E7iI6p2YJ/vPI+UA/e9Z8JExb+8jA/jd6LU1aqHO9w6f41CYM7ODw2SAXE9yB4e++mjUKsIk4xaebJOqFoeD6YGIaEBsh3+2AnMf+YHHVkx4m3qYH0IHbptiq6ckM2GoEkKG7aTMwDEkJxKmQkYO7YIM0h/onCL0VZN/qMuYLEvyMmaCDg120Ge15uKK6CyPLSiUawCaBB3DAG32agNwUoaTEEsTvABEggX6BZ2fidDVKBpR7mAOzltXRPm3CF512QtGUUyOM2jCcHndhTgHjLpyb2qV+yE7S6A8X5cs1gSbbfNSCSY1haoSK2eXT2jFZVZxiozbgc5TWXMfU+1nEiQtYIR7fejo93/3fpWUOtE4jn5t3xxjUV1rf8rUOHvDGJWkAdw5R4LjjoSFsRgUk5NhrRm1jRXC/24un7PpXLbRqytmJ69p83eTeeBaO/J9nyD5fSxqrvdBjpIDdKtrX+4Uu7GC700rUpC2rPhQSHjZ2s0IsMG+8=,iv:wBKM2b/LE1tyd2j63NRtWRQdDD36Xp62DbDPtQnUuqA=,tag:ExyJDP58YB62vox2wkoniw==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB6RnJPb2JhRXFWcmhQZU5D
+            eG1sREhVSXkvbDNBd3Izd0xrRlh4S0dERTJFClVDYmlJWU5uQ0hyeENvajF5UTZT
+            ZmlzRmZRZ09nNGNlaG5NUUN5YmFQZUUKLS0tIFlOMXZXZjdTQzYzcFpPeVlyRGxv
+            S3NBLytTdjVvMXVBY1RhMjlNZjZiREkKYXtlFoZIV1cxzC1tMGigHh56qjC3Ms49
+            GxbNvhMEjDmWMO3bbcnyPwlEop87pCLk1cQr7rWXcX/tyuCsjzobFg==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1ayd37q6cyqrh2d2jgz04jx0guxmj483d0tchhqd6sd83ukcf4vusm4p63q
+    encrypted_regex: ^clients$
+    lastmodified: "2026-06-18T16:25:24Z"
+    mac: ENC[AES256_GCM,data:1KHvgyE7drhE0lY8r1CMm5Se+89lJkNBIrXgTGTnDenw/x4I/pneyMP/KFbg8hAG2Al6ckTO2QR4qil2k18pBN2Xwqz2kK4VA7l/zee8bfva+1bl9eYN0S8lTS+ZeR8+gmOkyJoVjVlSVvDgQn62jsP2TFh4mNZHNte4CAaZWTM=,iv:FiHHSxm6lt3rUp3fgS9gJhPFXA5qNq0k3ClBWLMP7wo=,tag:SAB62/1Kdrf/kK7UmnXlEA==,type:str]
+    version: 3.13.1

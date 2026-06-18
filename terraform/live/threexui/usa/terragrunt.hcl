@@ -36,30 +36,29 @@ inputs = {
   username  = local.panel.username
   password  = local.panel.password
 
-  # First-run rotation from admin/admin → steady-state (remove from secrets.sops.yaml once
-  # the panel is rotated; optional after that).
-  bootstrap_username = try(local.panel.bootstrap_username, null)
-  bootstrap_password = try(local.panel.bootstrap_password, null)
+  # Onboarding an EXISTING, already-rotated panel via import — do NOT manage/rotate the admin
+  # user (no bootstrap creds needed; secrets.sops.yaml holds the panel's current creds).
+  manage_panel_user = false
 
-  # IMPORTANT — these MUST match the LIVE USA inbound before import, or the first plan/apply
-  # will rotate the Reality keys and break existing clients. Enumerate the live panel first
-  # (README §Enumerate), then replace the placeholders below with the real values, and set
-  # reality_private_key / reality_short_ids explicitly (null => panel regenerates).
+  # Mirrors the ger inbound (same port/protocol); only the Reality camouflage differs:
+  # USA fronts www.microsoft.com (ger fronts www.amazon.com). reality_private_key /
+  # reality_short_ids are panel-managed (Optional+Computed) — omitted here like ger and
+  # reconciled into state on import, so the secret private key never lands in this public repo.
   inbounds = {
     reality = {
-      port                 = 443                  # VERIFY against live USA inbound
-      remark               = "vless-reality-usa"  # VERIFY (panel remark)
-      reality_target       = "www.amazon.com:443" # VERIFY
-      reality_server_names = ["www.amazon.com"]   # VERIFY
-      # reality_private_key  = "<from live panel>" # REQUIRED for a no-op import
-      # reality_short_ids    = ["<from live panel>"]
+      port                 = 443
+      remark               = "vless-reality-usa" # VERIFY exact remark on the panel Basics tab
+      reality_target       = "www.microsoft.com:443"
+      reality_server_names = ["www.microsoft.com"]
     }
   }
 
   clients = local.clients
 
-  # Subscription server, fronted by the cluster Gateway (sub-https:8443 → xui-sub:2096).
-  subscription = {
-    public_url = "https://sub.vps-2.usa.ips.sanch.pet:8443"
-  }
+  # Subscription management DEFERRED during onboarding. The live USA panel already has a
+  # sub_path; if the module created its own random_string.sub_path it would rotate the path
+  # and break every existing subscription URL. Enable this only after importing the existing
+  # sub settings + sub_path (follow-up). Until then the panel's current subscription is
+  # untouched. Target public_url for later: https://sub.vps-2.usa.ips.sanch.pet:8443
+  subscription = null
 }

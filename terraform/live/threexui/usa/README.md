@@ -29,17 +29,35 @@ Per client (in `settings.clients`): `email`, `id` (uuid), `subId`, `flow`.
 
 ## §Import
 
-1. Fill `terragrunt.hcl` `inbounds.reality` with the real values from §Enumerate, including
-   `reality_private_key` and `reality_short_ids` (else apply regenerates them and breaks clients).
-2. List every existing client in `clients.sops.yaml` (handle = panel `email`).
-3. Write `import` blocks (Terraform >= 1.5) for the existing resources, then plan to a no-op.
-   Resource addresses to import (IDs per the `batonogov/threexui` provider — confirm format):
-   - `threexui_inbound.this["reality"]`
-   - `threexui_inbound_client.this["<handle>"]` (one per existing client)
-   - `threexui_panel_subscription.settings[0]`
-   - `random_string.sub_path[0]` (the existing sub path — import or accept a one-time set)
-   - `threexui_panel_user.admin[0]` only if `manage_panel_user = true`
-4. `terragrunt plan` → iterate `terragrunt.hcl` until the plan is **empty** (no-op).
+Inbound id is `1`. Provider import IDs: `threexui_inbound` ← `<inbound_id>`;
+`threexui_inbound_client` ← `<inbound_id>:<client_uuid>`. During onboarding `subscription`
+is `null` and `manage_panel_user = false`, so only the inbound + the 9 clients are imported.
+
+Client UUIDs are VLESS credentials — they are NOT stored in this repo. Generate the import
+commands from the live panel at runtime instead.
+
+Prereqs: tunnel up; `secrets.sops.yaml` created (panel's current username/password,
+`base_path: /`); then `terragrunt init`.
+
+Save the inbounds list JSON (browser → open `http://localhost:2053/panel/api/inbounds/list`)
+to `/tmp/usa-inbounds.json`, then generate + review the import commands:
+
+```sh
+jq -r '.obj[] | .id as $i
+  | "terragrunt import '\''threexui_inbound.this[\"reality\"]'\'' \($i)"
+  , (.clientStats[] | "terragrunt import '\''threexui_inbound_client.this[\"\(.email)\"]'\'' \($i):\(.uuid)")' \
+  /tmp/usa-inbounds.json
+```
+
+Run the emitted commands (inbound + one per existing client).
+
+Then `terragrunt plan` and review carefully:
+- **Expected (intended alignment, safe in-place):** inbound `remark "" → "vless-reality-usa"`,
+  `sniffing.enabled false → true` (module standard, same as ger).
+- **MUST show no change (else STOP, do not apply):** reality `private_key` / `short_ids`
+  (omitted in config → relied on as panel-managed/Computed, like ger); each client's `flow`
+  (`xtls-rprx-vision`). If any of these would change/regenerate, pin them explicitly first.
+- **No `destroy` / `replace`** on any client (would rotate UUIDs / break links).
 
 ## §Add the cudy-openwrt client
 
