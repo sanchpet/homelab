@@ -1,0 +1,18 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infra-configs
+  namespace: flux-system
+spec:
+  interval: 1h
+  retryInterval: 2m
+  timeout: 5m
+  dependsOn:
+    - name: infra-controllers
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./kubernetes/infrastructure/clusters/sweb-ru-vps
+  prune: true
+  wait: true

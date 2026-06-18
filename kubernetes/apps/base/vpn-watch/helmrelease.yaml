@@ -1,0 +1,156 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+# Out-of-band VPN reachability monitor (see README). Four controllers in one release:
+#   xray-checker  — probes each VLESS/Reality endpoint through Xray Core (method `ip`:
+#                   fetches through the tunnel and verifies the exit IP → catches DPI
+#                   blocking, not just "port open"). Exposes /config/{id} → 200/503.
+#   uptime-kuma   — polls those endpoints, de-bounces, fans out alerts (ntfy + SMS),
+#                   serves the status page.
+#   ntfy          — self-hosted push, reachable from RU without VPN.
+#   deadman       — cronjob relay: pings healthchecks.io only while the prober answers;
+#                   if the node/cluster dies, pings stop → external alert fires off-cluster.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vpn-watch
+  namespace: monitoring
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: vpn-watch
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      xray-checker:
+        type: deployment
+        annotations:
+          # Restart when the subscription secret rotates. Requires stakater Reloader.
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: docker.io/kutovoys/xray-checker
+              tag: "0.4.4"   # pin: check hub.docker.com/r/kutovoys/xray-checker/tags
+            env:
+              # method ip = pull PROXY_IP_CHECK_URL THROUGH the tunnel and compare exit IP.
+              PROXY_CHECK_METHOD: "ip"
+              PROXY_CHECK_INTERVAL: "120"
+              PROXY_TIMEOUT: "10"
+              SUBSCRIPTION_UPDATE: "true"
+              METRICS_PORT: "2112"
+              LOG_LEVEL: "info"
+            envFrom:
+              # SUBSCRIPTION_URL (3x-ui sub of the ger+usa inbounds) — SOPS secret (overlay).
+              - secretRef:
+                  name: vpn-watch-secret
+            probes:
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet: { path: /health, port: 2112 }
+                  periodSeconds: 30
+                  failureThreshold: 5
+              readiness: *probe
+
+      uptime-kuma:
+        type: deployment
+        strategy: Recreate   # SQLite on an RWO volume — no parallel pods
+        containers:
+          app:
+            image:
+              repository: docker.io/louislam/uptime-kuma
+              tag: "1.23.16"
+            env:
+              TZ: "Europe/Moscow"
+
+      ntfy:
+        type: deployment
+        strategy: Recreate
+        containers:
+          app:
+            image:
+              repository: docker.io/binwiederhier/ntfy
+              tag: "v2.11.0"
+            args: ["serve"]
+            env:
+              NTFY_BASE_URL: "https://ntfy.watcher.ru.sweb.sanch.pet"
+              NTFY_BEHIND_PROXY: "true"
+              NTFY_CACHE_FILE: "/var/cache/ntfy/cache.db"
+              NTFY_AUTH_FILE: "/var/lib/ntfy/auth.db"
+              NTFY_AUTH_DEFAULT_ACCESS: "deny-all"   # private topic, token-gated
+
+      deadman:
+        type: cronjob
+        cronjob:
+          schedule: "*/5 * * * *"
+          concurrencyPolicy: Forbid
+          successfulJobsHistoryLimit: 1
+          failedJobsHistoryLimit: 3
+          backoffLimit: 0
+          activeDeadlineSeconds: 60
+        containers:
+          app:
+            image:
+              repository: docker.io/curlimages/curl
+              tag: "8.11.1"
+            command:
+              - /bin/sh
+              - -c
+              # Ping the dead-man ONLY if the prober answers. Node/cluster down → pings
+              # stop → healthchecks.io alerts via its own infra (off-cluster).
+              - >
+                curl -fsS --max-time 10 http://xray-checker.monitoring:2112/health &&
+                curl -fsS --max-time 10 "$HC_PING_URL"
+            envFrom:
+              - secretRef:
+                  name: vpn-watch-secret
+
+    service:
+      xray-checker:
+        controller: xray-checker
+        ports:
+          http:
+            port: 2112
+      uptime-kuma:
+        controller: uptime-kuma
+        ports:
+          http:
+            port: 3001
+      ntfy:
+        controller: ntfy
+        ports:
+          http:
+            port: 80
+
+    persistence:
+      kuma-data:
+        type: persistentVolumeClaim
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        storageClass: local-path
+        advancedMounts:
+          uptime-kuma:
+            app:
+              - path: /app/data
+      ntfy-data:
+        type: persistentVolumeClaim
+        accessMode: ReadWriteOnce
+        size: 256Mi
+        storageClass: local-path
+        advancedMounts:
+          ntfy:
+            app:
+              - path: /var/lib/ntfy
+      ntfy-cache:
+        type: emptyDir
+        advancedMounts:
+          ntfy:
+            app:
+              - path: /var/cache/ntfy

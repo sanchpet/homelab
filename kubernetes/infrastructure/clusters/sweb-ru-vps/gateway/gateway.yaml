@@ -1,0 +1,42 @@
+---
+# Shared cluster gateway (NGF). HTTP:80 for ACME HTTP-01 + HTTPS:443 for the monitoring
+# UIs (ntfy push + Uptime Kuma status). This node runs no Reality inbound (monitoring
+# vantage only), so :443 is free — unlike the VPN nodes where NGF moves to :8443.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: main
+  namespace: nginx-gateway
+spec:
+  gatewayClassName: nginx
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: ntfy-https
+      port: 443
+      protocol: HTTPS
+      hostname: ntfy.watcher.ru.sweb.sanch.pet
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: ntfy-watcher-tls
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: status-https
+      port: 443
+      protocol: HTTPS
+      hostname: status.watcher.ru.sweb.sanch.pet
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: status-watcher-tls
+      allowedRoutes:
+        namespaces:
+          from: All

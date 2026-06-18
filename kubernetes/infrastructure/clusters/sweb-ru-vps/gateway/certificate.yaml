@@ -1,0 +1,26 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ntfy-watcher-tls
+  namespace: nginx-gateway
+spec:
+  secretName: ntfy-watcher-tls
+  dnsNames:
+    - ntfy.watcher.ru.sweb.sanch.pet
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: status-watcher-tls
+  namespace: nginx-gateway
+spec:
+  secretName: status-watcher-tls
+  dnsNames:
+    - status.watcher.ru.sweb.sanch.pet
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

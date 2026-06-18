@@ -1,0 +1,37 @@
+---
+# Variables for the k3s_cluster group. Kept out of the inventory file on purpose
+# (topology vs variables separation). Committed — no secrets here.
+# (Connection user is ansible.cfg `remote_user`; ssh_public_key is in vars/fleet.yml.)
+
+# k3s version — fresh host gets latest stable (https://github.com/k3s-io/k3s/releases),
+# matching ips-ger-vps. Align the older USA node in the GitOps-upgrade pass to avoid skew.
+k3s_version: v1.36.1+k3s1
+api_endpoint: "{{ hostvars[groups['server'][0]]['ansible_host'] }}"
+
+# Local kubeconfig context name — MUST be unique per cluster (the collection defaults all
+# clusters to `k3s-ansible`, which overwrites). See ips-usa-vps-2 group_vars for rationale.
+cluster_context: sweb-ru-vps
+
+# token intentionally omitted: a single server auto-generates one. For multi-node,
+# set `token` here under ansible-vault (openssl rand -base64 64).
+
+# Server config (/etc/rancher/k3s/config.yaml): disable the bundled Traefik — it is
+# k3s-managed (outside Git). We run our own Gateway API controller (NGINX Gateway
+# Fabric) via Flux instead, version-pinned and GitOps-managed. Also make kubeconfig
+# world-readable.
+server_config_yaml: |
+  disable:
+    - traefik
+  write-kubeconfig-mode: "0644"
+
+# Image-pull egress through the German gost relay (DPI-resistant TLS proxy, already running
+# on ips-ger-vps with a valid Let's Encrypt cert). containerd (embedded in k3s) honours these
+# service envs and Go speaks https:// proxies directly — so we point straight at the relay,
+# no local gost client. NOT registries.yaml (mirrors/auth) and NOT cri-o.
+# gost_proxy_pass: define under ansible-vault (same value as the gost-config SOPS secret,
+# user sanchpet) — keeps the credential out of committed plaintext.
+# k3s also auto-appends the cluster Pod/Service ranges to NO_PROXY; listed here explicitly.
+extra_service_envs:
+  - "HTTP_PROXY=https://sanchpet:{{ gost_proxy_pass }}@gost.vps.ger.ips.sanch.pet:7443"
+  - "HTTPS_PROXY=https://sanchpet:{{ gost_proxy_pass }}@gost.vps.ger.ips.sanch.pet:7443"
+  - "NO_PROXY=127.0.0.1,localhost,10.42.0.0/16,10.43.0.0/16,.svc,.cluster.local,watcher.ru.sweb.sanch.pet"
