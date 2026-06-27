@@ -1,0 +1,13 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: sub-vps-2-tls
+  namespace: nginx-gateway
+spec:
+  secretName: sub-vps-2-tls
+  dnsNames:
+    - sub.${cluster_subdomain}
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

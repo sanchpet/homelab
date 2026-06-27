@@ -1,0 +1,42 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: anylink-conf
+  namespace: vpn
+data:
+  server.toml: |
+    db_type = "sqlite3"
+    db_source = "/app/db/anylink.db"
+    cert_file = "/app/ssl/tls.crt"
+    cert_key = "/app/ssl/tls.key"
+    log_level = "info"
+    issuer = "sanch.pet"
+    admin_user = "admin"
+    admin_pass = "placeholder"        # overridden by env LINK_ADMIN_PASS
+    jwt_secret = "placeholder"        # overridden by env LINK_JWT_SECRET
+    server_addr = ":4443"
+    server_dtls = true
+    server_dtls_addr = ":4443"
+    admin_addr = "127.0.0.1:8800"     # admin panel private → SSH tunnel only
+    link_mode = "tun"
+    ipv4_master = "eth0"
+    ipv4_cidr = "10.99.98.0/24"       # distinct from USA (10.99.99.0/24) → no client route clash
+    ipv4_gateway = "10.99.98.1"
+    ipv4_start = "10.99.98.100"
+    ipv4_end = "10.99.98.200"
+    max_client = 50
+    max_user_client = 3
+    ip_lease = 86400
+    default_group = "all"
+    cstp_keepalive = 4
+    cstp_dpd = 90
+    mobile_keepalive = 4
+    mobile_dpd = 90
+    mtu = 1300                         # client-side PPPoE/TLS-encap constraint (same as USA)
+    default_domain = "anylink.${cluster_subdomain}"
+    idle_timeout = 0
+    session_timeout = 3600
+    audit_interval = -1
+    iptables_nat = true
+    compression = false

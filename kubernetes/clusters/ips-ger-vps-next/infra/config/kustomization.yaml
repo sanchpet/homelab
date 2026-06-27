@@ -1,0 +1,9 @@
+---
+# Capability selection — config layer. public-tls (issuers) + per-cluster gateway/cert
+# customs. public-tls runtime-needs platform (taken above) — documented in the bundle.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../../infra/bundles/public-tls
+  - gateway.yaml
+  - certificate.yaml
