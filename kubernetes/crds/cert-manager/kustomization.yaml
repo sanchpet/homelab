@@ -4,7 +4,8 @@
 # upstream-marked incomplete / not-for-provisioning (missing the conversion webhook + CA
 # injection), so reference the official release asset. Flux fetches it at build time.
 #
-# ⚠️ MANUAL BUMP — NO RENOVATE YET. The version is hardcoded in the URL (kustomize resolves
+# ⚠️ MANUAL BUMP — NO RENOVATE YET (tracked: homelab#50). The version is hardcoded in the
+# URL (kustomize resolves
 # remote resources before Flux postBuild, so ${cert_manager_version} can't be used here).
 # On a cert-manager upgrade you MUST bump TWO places in lockstep:
 #   1. this URL, and
