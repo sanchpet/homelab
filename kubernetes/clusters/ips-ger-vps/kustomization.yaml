@@ -1,0 +1,17 @@
+---
+# Explicit root kustomization for this cluster's Flux entrypoint.
+# WITHOUT it, Flux auto-generates one via `kustomize create --autodetect --recursive`,
+# which descends into infra/ and apps/ and applies the layer manifests RAW at the root —
+# no postBuild substitution, no ordering (e.g. ${gateway_sub_tls_secret} reaches
+# cert-manager unsubstituted, dry-run rejected). List ONLY the Flux Kustomization CRs +
+# cluster-vars + flux-system; the layer dirs are reached via each KS's own path (which
+# carry substituteFrom).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - flux-system
+  - cluster-vars.yaml
+  - infra-crds.yaml
+  - infra-controllers.yaml
+  - infra-configs.yaml
+  - apps.yaml
