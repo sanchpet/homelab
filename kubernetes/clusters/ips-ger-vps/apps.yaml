@@ -13,10 +13,14 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./kubernetes/apps/clusters/ips-ger-vps
+  path: ./kubernetes/clusters/ips-ger-vps/apps
   prune: true
   wait: true
   decryption:
     provider: sops
     secretRef:
       name: sops-age   # age key, created out-of-band in flux-system
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-vars
