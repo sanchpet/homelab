@@ -1,19 +1,20 @@
 ---
+# Name preserved (infra-configs) → gateway/issuers updated in place, not recreated.
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: config
+  name: infra-configs
   namespace: flux-system
 spec:
   interval: 1h
   retryInterval: 2m
   timeout: 5m
   dependsOn:
-    - name: controllers
+    - name: infra-controllers
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./kubernetes/clusters/ips-ger-vps/infra/config
+  path: ./kubernetes/clusters/ips-usa-vps-2/infra/config
   prune: true
   wait: true
   postBuild:

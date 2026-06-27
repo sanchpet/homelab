@@ -1,19 +1,20 @@
 ---
+# Name preserved (infra-controllers) → cert-manager/NGF/reloader stay put across cutover.
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: controllers
+  name: infra-controllers
   namespace: flux-system
 spec:
   interval: 1h
   retryInterval: 2m
   timeout: 5m
   dependsOn:
-    - name: crds
+    - name: infra-crds
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./kubernetes/clusters/ips-ger-vps/infra/controllers
+  path: ./kubernetes/clusters/ips-usa-vps-2/infra/controllers
   prune: true
   wait: true
   postBuild:
