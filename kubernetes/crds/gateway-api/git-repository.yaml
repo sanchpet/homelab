@@ -1,0 +1,33 @@
+---
+# Gateway API CRDs pulled straight from upstream, pinned to a tag — no vendored blob.
+# `ignore` fetches only the standard-channel CRD dir (not the whole repo).
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: gateway-api
+  namespace: flux-system
+spec:
+  interval: 24h
+  url: https://github.com/kubernetes-sigs/gateway-api.git
+  ref:
+    tag: ${gateway_api_version}
+  ignore: |
+    /*
+    !/config
+    /config/*
+    !/config/crd
+    /config/crd/*
+    !/config/crd/standard
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: gateway-api-crds
+  namespace: flux-system
+spec:
+  interval: 24h
+  prune: true
+  path: ./config/crd/standard
+  sourceRef:
+    kind: GitRepository
+    name: gateway-api

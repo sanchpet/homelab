@@ -1,0 +1,10 @@
+---
+# Bundle `platform` — the finite shared platform every cluster runs.
+# Non-overlapping: each component lives in exactly one bundle (else Kustomize errors on
+# duplicate resources). Selected by a cluster's controllers layer.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base/cert-manager
+  - ../../base/nginx-gateway-fabric
+  - ../../base/reloader

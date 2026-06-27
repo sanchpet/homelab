@@ -1,0 +1,15 @@
+---
+# gost TLS cert for the wrapped listeners. Shared across VPN nodes; host via
+# ${cluster_subdomain}. The gost proxy creds stay a per-cluster SOPS secret (gost-config).
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: gost-tls
+  namespace: vpn
+spec:
+  secretName: gost-tls
+  dnsNames:
+    - gost.${cluster_subdomain}
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

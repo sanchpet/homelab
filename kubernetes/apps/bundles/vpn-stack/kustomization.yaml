@@ -1,0 +1,13 @@
+---
+# Bundle `vpn-stack` — VPN capability: 3x-ui (Xray panel) + gost (TLS-wrapped proxy),
+# plus their shared gateway-facing exposure (sub HTTPRoute, gost cert), parameterized via
+# ${cluster_subdomain}. Bases stay gateway-agnostic — the bundle adds the routing/cert.
+# Per-cluster remainder = SOPS secrets only (gost-config). Vault host omits this bundle.
+# anylink (OpenConnect) decommissioned 2026-06-27 — poor throughput from RU, test only.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base/3x-ui
+  - ../../base/gost
+  - 3x-ui-httproute.yaml
+  - gost-certificate.yaml

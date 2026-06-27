@@ -1,0 +1,11 @@
+---
+# Catalog — CRD groups, hoisted and version-pinned via ${...}. The crds layer Flux
+# Kustomization (clusters/<c>/crds.yaml, wait:true) points here so kinds (Gateway,
+# HTTPRoute, …) exist before controllers/config reference them.
+# NOTE(WP-050 cutover): cert-manager CRDs are still chart-managed (infra/base/cert-manager,
+# crds.enabled:true). Hoisting them here (crds.enabled:false) is a per-cluster cutover step
+# — ownership handoff from Helm is delicate, done under `flux reconcile`, not blind.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - gateway-api

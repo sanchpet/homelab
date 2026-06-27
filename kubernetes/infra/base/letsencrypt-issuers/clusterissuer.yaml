@@ -1,0 +1,40 @@
+---
+# Let's Encrypt issuers, HTTP-01 solved via the cluster's Gateway (main/nginx-gateway).
+# Cluster-scoped; a cluster opts in via the `public-tls` bundle. Assumes the cluster
+# has a Gateway named `main` in `nginx-gateway` with an HTTP:80 listener.
+# email parameterized per cluster via ${acme_email} (cluster-vars).
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: ${acme_email}
+    privateKeySecretRef:
+      name: letsencrypt-staging-account
+    solvers:
+      - http01:
+          gatewayHTTPRoute:
+            parentRefs:
+              - name: main
+                namespace: nginx-gateway
+                kind: Gateway
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: ${acme_email}
+    privateKeySecretRef:
+      name: letsencrypt-prod-account
+    solvers:
+      - http01:
+          gatewayHTTPRoute:
+            parentRefs:
+              - name: main
+                namespace: nginx-gateway
+                kind: Gateway

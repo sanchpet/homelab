@@ -1,0 +1,6 @@
+---
+# Capability selection — controllers layer. This VPN node runs the shared platform.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../../infra/bundles/platform
