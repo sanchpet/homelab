@@ -1,7 +1,7 @@
 # ADR 0001 — Per-cluster GitOps layout: layered ports + functional bundles
 
-- **Status:** Proposed
-- **Date:** 2026-06-22
+- **Status:** Accepted
+- **Date:** 2026-06-22 (accepted 2026-06-27, impl WP-050)
 - **Scope:** `kubernetes/` Flux layout across all clusters (single repo)
 - **Supersedes:** the current `infrastructure/{crds,controllers}` shared-bundle layout
 
