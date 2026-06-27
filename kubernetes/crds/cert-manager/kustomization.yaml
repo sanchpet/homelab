@@ -1,0 +1,20 @@
+---
+# cert-manager CRDs as a kustomize remote resource (no vendoring) — cert-manager has no
+# apply-ready raw CRDs at a stable git path like gateway-api: deploy/crds in git is
+# upstream-marked incomplete / not-for-provisioning (missing the conversion webhook + CA
+# injection), so reference the official release asset. Flux fetches it at build time.
+#
+# ⚠️ MANUAL BUMP — NO RENOVATE YET (tracked: homelab#50). The version is hardcoded in the
+# URL (kustomize resolves
+# remote resources before Flux postBuild, so ${cert_manager_version} can't be used here).
+# On a cert-manager upgrade you MUST bump TWO places in lockstep:
+#   1. this URL, and
+#   2. cert_manager_version in EVERY clusters/<c>/cluster-vars.yaml (the chart).
+# Bump only one → controller/CRD schema drift. The renovate: line below activates when
+# Renovate is set up (it needs a customManager regex; the built-in kustomize manager does
+# not parse a release-`download` URL).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  # renovate: datasource=github-releases depName=cert-manager/cert-manager
+  - https://github.com/cert-manager/cert-manager/releases/download/v1.20.2/cert-manager.crds.yaml
