@@ -1,0 +1,10 @@
+---
+# Bundle `public-tls` — public TLS issuers (Let's Encrypt staging + prod).
+# IMPLICIT RUNTIME DEPENDENCY: needs cert-manager from the `platform` bundle (CRD +
+# webhook) to apply ClusterIssuers. Take `public-tls` ONLY together with `platform`.
+# (Documented mitigation per ADR-0001; the dependsOn-KS alternative was considered and
+# rejected for a 3-cluster homelab — see WP-050.)
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base/letsencrypt-issuers

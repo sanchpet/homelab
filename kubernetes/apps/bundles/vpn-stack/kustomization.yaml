@@ -1,0 +1,10 @@
+---
+# Bundle `vpn-stack` — the VPN capability: 3x-ui (Xray panel), anylink (OpenConnect),
+# gost (TLS-wrapped proxy). Selected by VPN-node clusters; the Vault host omits it.
+# Non-overlapping with any other bundle.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base/3x-ui
+  - ../../base/anylink
+  - ../../base/gost

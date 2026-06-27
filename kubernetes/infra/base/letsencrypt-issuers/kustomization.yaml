@@ -1,0 +1,11 @@
+---
+# Base — Let's Encrypt ClusterIssuers (staging + prod). Opt-in, issuer-agnostic
+# cert-manager does NOT ship these; a cluster pulls them via the `public-tls` bundle.
+# Modeled as a plain base (resources:), not a kustomize Component: a ClusterIssuer is a
+# NEW resource, not a patch over existing ones (ADR-0001).
+# Runtime dependency: needs cert-manager (CRD + webhook) from the `platform` bundle —
+# take `public-tls` only together with `platform` (documented, see ADR-0001 / WP-050).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - clusterissuer.yaml
