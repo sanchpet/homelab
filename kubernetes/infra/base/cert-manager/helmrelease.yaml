@@ -21,12 +21,10 @@ spec:
     remediation:
       retries: 3
   values:
-    # TODO(WP-050 cutover): hoist CRDs to crds/cert-manager and flip enabled:false.
-    # Ownership handoff Helm→Flux is delicate — done per-cluster under `flux reconcile`,
-    # not in the additive catalog step.
+    # CRDs are hoisted to crds/cert-manager (remote resource, installed by the infra-crds
+    # layer before this controller). The chart must NOT manage them → enabled:false.
     crds:
-      enabled: true
-      keep: true
+      enabled: false
     # Enable the Gateway API HTTP-01 solver (gatewayHTTPRoute) used by the ClusterIssuer.
     config:
       apiVersion: controller.config.cert-manager.io/v1alpha1

@@ -1,0 +1,10 @@
+---
+# cert-manager CRDs as a kustomize remote resource (no vendoring) — cert-manager has no
+# apply-ready raw CRDs at a stable git path like gateway-api, so reference the release
+# asset directly. Flux's kustomize-controller fetches it at build time.
+# Version is hardcoded in the URL (kustomize resolves it before postBuild substitution, so
+# ${...} can't be used here) — bump in lockstep with cert_manager_version in cluster-vars.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - https://github.com/cert-manager/cert-manager/releases/download/v1.20.2/cert-manager.crds.yaml
