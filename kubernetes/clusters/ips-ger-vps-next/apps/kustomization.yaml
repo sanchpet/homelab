@@ -1,10 +1,8 @@
 ---
-# Capability selection — apps layer. vpn-stack bundle (bases) + per-app customs.
-# Customs reference ONLY their own httproute/cert/secret — bases come from the bundle
-# (non-overlap: a component must not be included twice).
+# Capability selection — apps layer. vpn-stack bundle (bases + sub route + gost cert) +
+# per-cluster gost SOPS secret. 3x-ui has no per-cluster overlay (fully in the bundle).
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../../../apps/bundles/vpn-stack
-  - 3x-ui
   - gost

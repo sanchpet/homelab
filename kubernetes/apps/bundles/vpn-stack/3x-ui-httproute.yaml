@@ -1,7 +1,6 @@
 ---
-# Routes the sub hostname (TLS-terminated at the Gateway on :8443) to the 3x-ui sub
-# server. Cross-namespace to the Gateway (nginx-gateway), allowed by the Gateway's
-# allowedRoutes.from: All. Backend xui-sub is in the same ns (vpn) → no ReferenceGrant.
+# Routes the sub hostname (TLS-terminated at the Gateway :8443) to the 3x-ui sub server.
+# Shared across VPN nodes; host parameterized via ${cluster_subdomain}.
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:

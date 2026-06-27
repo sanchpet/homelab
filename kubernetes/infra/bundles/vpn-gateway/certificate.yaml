@@ -1,0 +1,15 @@
+---
+# sub endpoint TLS cert. Certificate object name is stable (sub-tls); secretName kept as
+# each cluster's existing secret (${gateway_sub_tls_secret}) so no re-issue on cutover.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: sub-tls
+  namespace: nginx-gateway
+spec:
+  secretName: ${gateway_sub_tls_secret}
+  dnsNames:
+    - sub.${cluster_subdomain}
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

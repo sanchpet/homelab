@@ -1,6 +1,6 @@
 ---
+# Per-cluster gost overlay: SOPS proxy creds only (cert + base come from vpn-stack).
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - certificate.yaml
   - secret.sops.yaml
