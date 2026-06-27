@@ -7,5 +7,4 @@ kind: Kustomization
 resources:
   - ../../../apps/bundles/vpn-stack
   - 3x-ui
-  - anylink
   - gost
