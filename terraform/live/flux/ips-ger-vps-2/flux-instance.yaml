@@ -1,0 +1,32 @@
+---
+# FluxInstance — declarative desired-state of Flux on ips-ger-vps-2 (ADR-0002).
+# Applied by the Flux Operator (seeded via the bootstrap module in terragrunt.hcl); the
+# operator reconciles Flux itself AND creates the `flux-system` GitRepository + root sync
+# Kustomization for kubernetes/clusters/ips-ger-vps-2. Upgrade Flux = edit distribution.version.
+apiVersion: fluxcd.controlplane.io/v1
+kind: FluxInstance
+metadata:
+  name: flux
+  namespace: flux-system
+spec:
+  distribution:
+    # Pin a specific 2.y.z for reproducibility (ADR-0001 — never float); the operator makes
+    # upgrades a one-line edit. Verify current: https://github.com/fluxcd/flux2/releases
+    version: "2.x"
+    registry: "ghcr.io/fluxcd"
+    artifact: "oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests"
+  components:
+    - source-controller
+    - kustomize-controller
+    - helm-controller
+    - notification-controller
+  cluster:
+    type: kubernetes
+    size: small          # single-node k3s
+    networkPolicy: true
+  sync:
+    kind: GitRepository
+    url: "https://github.com/sanchpet/homelab.git"
+    ref: "refs/heads/main"
+    path: "kubernetes/clusters/ips-ger-vps-2"
+    pullSecret: "flux-system"   # GitHub App creds Secret (created by the bootstrap module)

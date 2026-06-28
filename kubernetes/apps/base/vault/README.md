@@ -13,6 +13,7 @@ Decision record and the secret-store comparison/ArchGate live in the governance 
 - `kubernetes/clusters/ips-ger-vps-2/apps/vault/` — per-cluster overlay (HTTPRoute).
 - `kubernetes/infra/bundles/vault-gateway/` — dedicated Gateway listener + cert bundle.
 - `kubernetes/clusters/ips-ger-vps-2/` — Flux entrypoint (cluster-vars + layer KS).
+- `terraform/live/flux/ips-ger-vps-2/` — declarative Flux bootstrap (operator + FluxInstance, ADR-0002).
 - `ansible/inventory/ips-ger-vps-2/` — node bootstrap + k3s install.
 
 ## Bring-up order
@@ -28,12 +29,16 @@ Decision record and the secret-store comparison/ArchGate live in the governance 
    ansible-playbook -i inventory/ips-ger-vps-2/ playbooks/site.yml
    ```
 
-3. **Flux bootstrap** (generates `clusters/ips-ger-vps-2/flux-system/`):
+3. **Seed Flux declaratively** (Flux Operator + FluxInstance via Terraform — ADR-0002, not
+   the CLI). One-time: create a GitHub App (Repository contents → Read-only) installed on
+   `sanchpet/homelab`, and fill `terraform/live/flux/ips-ger-vps-2/github-app.sops.yaml`
+   (from the `.example`). Then:
    ```sh
-   flux bootstrap github \
-     --owner=sanchpet --repository=homelab --branch=main \
-     --path=kubernetes/clusters/ips-ger-vps-2
+   export KUBECONFIG=<ips-ger-vps-2 kubeconfig>
+   cd terraform/live/flux/ips-ger-vps-2 && terragrunt apply
    ```
+   Terraform applies the operator + FluxInstance (ephemeral seed); Flux then reconciles the
+   cluster from git. No committed `flux-system/` (the FluxInstance creates the GitRepository).
 
 4. **Wait for `vault-0`** to be Running (it will be **sealed** — expected).
 

@@ -1,0 +1,17 @@
+# Plaintext template for the GitHub App credentials backing the flux-system git pullSecret
+# (ADR-0002 — App scoped to sanchpet/homelab, rotatable). Create the real, encrypted file:
+#   cd terraform/live/flux/ips-ger-vps-2
+#   cp github-app.sops.yaml.example github-app.sops.yaml
+#   $EDITOR github-app.sops.yaml          # paste the real App id / installation id / PEM
+#   sops --encrypt --in-place github-app.sops.yaml
+#   # (add a .sops.yaml creation rule encrypting ^(app_id|installation_id|private_key)$)
+#
+# GitHub App: Settings → Developer settings → GitHub Apps → New. Permission: Repository
+# contents → Read-only; install on sanchpet/homelab; note the App ID + Installation ID;
+# generate a private key (PEM). Flux source-controller reads githubApp* from the Secret.
+app_id: "CHANGEME"
+installation_id: "CHANGEME"
+# private_key — paste the App's PEM here as a multi-line block scalar
+# (the real BEGIN/END PRIVATE KEY lines). Kept out of this template to avoid tripping
+# the detect-private-key hook.
+private_key: "CHANGEME-paste-the-github-app-PEM-here"
