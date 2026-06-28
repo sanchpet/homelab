@@ -1,8 +1,22 @@
 ---
-# flux-system/ holds the FluxInstance (operator pattern, ADR-0002) — NOT CLI-generated
-# gotk-components. Reconciled in steady state via the cluster root kustomization, so Flux
-# self-manages its own desired state; Terraform only seeds the same flux-instance.yaml once.
+# flux-system/ holds the self-managed Flux stack (operator pattern, ADR-0002 full version),
+# NOT CLI-generated gotk-components. Reconciled in steady state via the cluster root
+# kustomization, so Flux self-manages both itself (FluxInstance) and its operator
+# (flux-operator ResourceSet). Terraform only seeds the same files once.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - flux-instance.yaml
+  - flux-operator.yaml
+  - runtime-info.yaml
+configMapGenerator:
+  # Operator values → ConfigMap consumed by the operator HelmRelease (valuesFrom). Same file
+  # Terraform passes at bootstrap, so seed and steady-state share one source of values.
+  - name: flux-operator-values
+    namespace: flux-system
+    files:
+      - values.yaml=flux-operator-values.yaml
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    reconcile.fluxcd.io/watch: Enabled

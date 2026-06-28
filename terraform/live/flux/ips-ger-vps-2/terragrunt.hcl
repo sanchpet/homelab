@@ -37,8 +37,13 @@ inputs = {
   revision = 1 # bump to force a bootstrap re-run
 
   gitops_resources = {
-    # The FluxInstance lives in the GitOps tree (single source of truth); TF only READS it to
-    # seed, then Flux reconciles it from git (dual lifecycle — per the Flux blog).
+    # The FluxInstance + operator values live in the GitOps tree (single source of truth); TF
+    # only READS them to seed, then Flux reconciles them from git (dual lifecycle). The
+    # operator_chart.values_yaml is the SAME file the in-git operator HelmRelease consumes —
+    # seed and steady-state share one source of values.
     instance_yaml = file("${get_repo_root()}/kubernetes/clusters/ips-ger-vps-2/flux-system/flux-instance.yaml")
+    operator_chart = {
+      values_yaml = file("${get_repo_root()}/kubernetes/clusters/ips-ger-vps-2/flux-system/flux-operator-values.yaml")
+    }
   }
 }
