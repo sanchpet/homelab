@@ -68,19 +68,25 @@ per-app OCIRepository pinning the chart), not raw Deployment/Service YAML — re
 the home-ops standard. Cross-cutting resources (Certificate/cert-manager,
 ExternalSecret/ESO, raw Secrets/ConfigMaps) are **sibling manifests** in the same app
 dir, composed by the Flux Kustomization — app-template owns the workload, not other
-operators' CRs. Reference: `apps/base/anylink` (app-template) +
-`apps/clusters/ips-usa-vps-2/anylink/` (its cert/config/secret). `3x-ui` is still raw
-Kustomize → pending migration to app-template for consistency. Don't mix generic-chart +
-raw for the *same* workload (the anti-pattern).
+operators' CRs. App-template is for **chart-less** apps; an app with a good **official
+chart** (e.g. Vault) uses that chart's HelmRelease directly (not app-template). Current
+overlays follow ADR-0001 — e.g. `clusters/ips-ger-vps/apps/gost/` (SOPS secret) over
+`apps/base/gost`. `3x-ui` is still raw Kustomize → pending migration to app-template.
+(anylink was decommissioned 2026-06-27.) Don't mix generic-chart + raw for the *same*
+workload (the anti-pattern).
 
-**Cluster overlay layout (BLOCKING):** per-cluster overlays live under `clusters/`, never
-as siblings of the shared building blocks. `apps/clusters/<cluster>/<app>/` holds
-de-prefixed files (`config.yaml`, `certificate.yaml`, `secret.sops.yaml`) + a
-`kustomization.yaml` pulling in `../../../base/<app>`; the cluster `kustomization.yaml`
-lists the app dirs. Infra mirrors this: shared `infrastructure/{crds,controllers}/`,
-per-cluster `infrastructure/clusters/<cluster>/` (Gateway + cert + issuers). No infra
-`base/` — each component sits under its layer (`crds/gateway-api`, `controllers/cert-manager`).
-Never dump `app-config.yaml`/`app-certificate.yaml` flat in the cluster dir.
+**Cluster layout (BLOCKING) — layered ports + functional bundles + per-cluster vars
+(ADR-0001, `docs/adr/0001-cluster-gitops-layout.md`):** pure catalogs hold no cluster names
+and no hardcoded versions — `kubernetes/{crds, infra/{base,bundles}, apps/{base,bundles}}`.
+A **bundle** is a `kustomization.yaml` with a `resources:` list (non-overlapping; document
+implicit deps, e.g. `public-tls`→`platform`). A **cluster is a set of capabilities**:
+`kubernetes/clusters/<name>/` carries `cluster-vars.yaml` (subdomain + ALL pinned versions,
+substituted via `postBuild.substituteFrom`) + four ordered layer Flux Kustomizations
+(`crds → controllers → config → apps`, with `wait`/`dependsOn`) whose
+`infra/{controllers,config}` + `apps/` kustomizations **select bundles** à-la-carte.
+Per-cluster remainder (HTTPRoute, SOPS secret) sits in the cluster's `apps/<app>/` overlay
+referencing `../../../../apps/base/<app>`. Never nest `clusters/` inside a layer; never
+float a version.
 
 **Reloader is installed** (stakater, cluster-wide) — annotate a workload
 `reloader.stakater.com/auto: "true"` for ConfigMap/Secret auto-restart; **don't
@@ -95,14 +101,19 @@ Real secrets via **SOPS** (age). The age **public** key is in `.sops.yaml`
 **private** key lives only as the `sops-age` Secret in `flux-system` (created
 out-of-band on the node) and in the owner's password manager — never in Git. Flux
 Kustomizations decrypt via `spec.decryption: { provider: sops, secretRef: sops-age }`.
-Encrypt only what's secret: e.g. anylink's `server.toml` is a plaintext ConfigMap;
-only `LINK_ADMIN_PASS`/`LINK_JWT_SECRET` go in a SOPS Secret (env override).
+Encrypt only what's secret: non-secret app config stays a plaintext ConfigMap; only the
+actual credentials go in a SOPS Secret (env override).
 
 IPs / domains / ports are **public** (the control is node hardening, not obscurity).
 A secret-in-disguise (tokenized URLs, node tokens) goes into SOPS even if it looks
-like config. (Self-hosted secret store — Vault/Infisical — is a planned upgrade off SOPS.)
+like config. (Self-hosted **Vault** is now live on `ips-ger-vps-2` (ADR-0002); migrating
+secrets off SOPS to Vault via ESO is in progress — WP-055.)
 
 ## Multi-cluster
 
-A cluster = `kubernetes/clusters/<name>/` + its own `flux bootstrap --path=...` +
-`infrastructure|apps/{base,<cluster>}` (Kustomize) + one SOPS key per cluster.
+A cluster = `kubernetes/clusters/<name>/` (cluster-vars + 4 layer KS, ADR-0001) + a
+**declarative Flux bootstrap** — the Flux Operator + a `FluxInstance` seeded by Terraform
+(`terraform/live/flux/<cluster>/`, **ADR-0002** `docs/adr/0002-flux-bootstrap-operator-terraform.md`),
+**NOT** the `flux bootstrap` CLI — + (for SOPS-using clusters) one age key per cluster. The
+day-to-day `flux` CLI (get/reconcile/logs) still works; Flux's own lifecycle is the
+`FluxInstance` in git, not the CLI. Reference cluster: `ips-ger-vps-2` (Vault host).
