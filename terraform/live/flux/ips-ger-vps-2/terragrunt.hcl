@@ -28,7 +28,9 @@ generate "provider" {
   contents  = <<-EOF
     provider "kubernetes" {}
     provider "helm" {
-      kubernetes {}
+      # helm provider v3: `kubernetes` is an ATTRIBUTE (= {}), not a nested block (v2).
+      # Empty → default kubeconfig loading rules (KUBECONFIG env).
+      kubernetes = {}
     }
   EOF
 }
