@@ -32,15 +32,13 @@ Decision record and the secret-store comparison/ArchGate live in the governance 
    ```
 
 3. **Seed Flux declaratively** (Flux Operator + FluxInstance via Terraform — ADR-0002, not
-   the CLI). One-time: create a GitHub App (Repository contents → Read-only) installed on
-   `sanchpet/homelab`, and fill `terraform/live/flux/ips-ger-vps-2/github-app.sops.yaml`
-   (from the `.example`). Then:
+   the CLI). The repo is public → Flux pulls over anonymous HTTPS, no git secret. Just:
    ```sh
    export KUBECONFIG=<ips-ger-vps-2 kubeconfig>
    cd terraform/live/flux/ips-ger-vps-2 && terragrunt apply
    ```
    Terraform applies the operator + FluxInstance (ephemeral seed); Flux then reconciles the
-   cluster from git. No committed `flux-system/` (the FluxInstance creates the GitRepository).
+   cluster from git. The FluxInstance creates the `flux-system` GitRepository.
 
 4. **Wait for `vault-0`** to be Running (it will be **sealed** — expected).
 

@@ -32,4 +32,5 @@ spec:
     url: "https://github.com/sanchpet/homelab.git"
     ref: "refs/heads/main"
     path: "kubernetes/clusters/ips-ger-vps-2"
-    pullSecret: "flux-system"   # GitHub App creds Secret (created by the bootstrap module)
+    # Public repo → anonymous HTTPS pull, no pullSecret. (In-repo secrets are SOPS-encrypted,
+    # decrypted in-cluster via the separate sops-age key. Add a pullSecret only if it goes private.)

@@ -39,8 +39,12 @@ a CLI re-run.
 CLI bootstrap in a separate work product. A temporary two-method state (new node =
 operator, old two = CLI) is accepted for the canary window.
 
-**Auth:** use a **GitHub App** (scoped, rotatable) rather than a deploy key; its private key
-is kept out-of-band / in SOPS like other secrets.
+**Auth:** none for git. The homelab repo is **public** and core Flux is **read-only**
+(no image-automation components → no write-back to git), so Flux pulls over anonymous
+HTTPS — no pullSecret, no token, no GitHub App. (In-repo secrets stay SOPS-encrypted,
+decrypted in-cluster via the separate sops-age key.) A GitHub App would be the SoTA choice
+*if* auth were ever needed — the repo going private, or adding image-automation write-back —
+but that is YAGNI here.
 
 Decision passed ArchGate (profile below). The chosen method is the Flux team's own
 recommended 2026 approach ("Bootstrapping Flux with Terraform, the right way").
@@ -67,7 +71,7 @@ entrypoint, bundles, and `apps/base/vault` from WP-042 all stay. What changes is
 | Generativity | ✅ | reusable pattern: TF-managed bootstrap, GitHub App auth, migration path for the other two |
 | Speed | ✅ | one-time seed; +1 small operator pod; reconcile unaffected |
 | Modernity ⭐ | ✅✅ | the SoTA (Flux 2026 blog + ControlPlane module); old `terraform-provider-flux` deprecated |
-| Security | ✅ | GitHub App (scoped) > deploy key; ephemeral temp-RBAC; +1 pod surface |
+| Security | ✅ | public repo + read-only Flux → **no git secret at all**; in-repo secrets stay SOPS-encrypted (sops-age, separate); ephemeral temp-RBAC; +1 pod surface |
 
 Verdict: clean profile (no ❌, no ⚠️), both criticals green → passes the conjunctive veto.
 
@@ -97,8 +101,9 @@ Verdict: clean profile (no ❌, no ⚠️), both criticals green → passes the 
 
 ## Open questions
 
-- GitHub App vs a fine-grained deploy key for this single-owner homelab (App is cleaner for
-  a fleet; deploy key is simpler for one repo).
+- Git auth is **not needed now** (public repo, read-only Flux). Revisit only if the repo
+  goes private or image-automation (git write-back) is added — then a GitHub App is the
+  SoTA auth.
 - Where the bootstrap Terraform lives (`terraform/live/flux-<cluster>/`) and how it composes
   with the planned `vault` provider config.
 - Whether to keep the `FluxInstance` manifest in git (operator reconciles it) vs TF-only.
