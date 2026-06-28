@@ -81,7 +81,11 @@ Verdict: clean profile (no ❌, no ⚠️), both criticals green → passes the 
 - Declarative bootstrap in IaC; no laptop CLI step.
 - Clean provisioning→reconcile handoff (Terraform not on the hook for steady state).
 - Flux lifecycle (versions/config) becomes GitOps-managed via `FluxInstance`.
-- SoTA method + GitHub App auth; reusable for the fleet.
+- SoTA method; reusable for the fleet.
+- **Drops the CLI's bootstrap-time git write** (the `flux bootstrap` CLI committed
+  `gotk-components`/`gotk-sync` to the repo, needing a repo-write PAT). The operator installs
+  Flux from an OCI artifact per the FluxInstance — nothing is written back to git, so no
+  write token. Fewer privileges, smaller surface.
 
 ### Negative / costs
 - Two bootstrap methods coexist during the canary (old two on CLI) — resolved by a
