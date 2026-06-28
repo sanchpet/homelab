@@ -16,10 +16,9 @@ spec:
   path: ./kubernetes/clusters/ips-ger-vps-2/apps
   prune: true
   wait: true
-  decryption:
-    provider: sops
-    secretRef:
-      name: sops-age   # age key, created out-of-band in flux-system
+  # No decryption: this cluster IS the secret store — its apps carry no SOPS files, so it
+  # must not depend on the sops-age key (unlike the VPN nodes whose gost creds are SOPS).
+  # Secrets here land via Vault/ESO, not SOPS.
   postBuild:
     substituteFrom:
       - kind: ConfigMap
