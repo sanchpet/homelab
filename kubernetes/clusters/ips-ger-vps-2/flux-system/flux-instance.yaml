@@ -1,0 +1,35 @@
+---
+# FluxInstance — declarative desired-state of Flux on ips-ger-vps-2 (ADR-0002).
+# Lives in the GitOps tree (single source of truth). Dual lifecycle:
+#   1. bootstrap — Terraform reads this via file() and applies it once (ephemeral seed);
+#   2. steady-state — Flux reconciles it from git alongside the other cluster manifests
+#      (it is listed in this cluster's root kustomization via flux-system/).
+# The operator reconciles Flux itself AND creates the `flux-system` GitRepository + root
+# sync Kustomization for kubernetes/clusters/ips-ger-vps-2. Upgrade Flux = edit version here.
+apiVersion: fluxcd.controlplane.io/v1
+kind: FluxInstance
+metadata:
+  name: flux
+  namespace: flux-system
+spec:
+  distribution:
+    # Pinned (ADR-0001 — never float); upgrade = bump here. Latest: github.com/fluxcd/flux2/releases
+    version: "2.8.8"
+    registry: "ghcr.io/fluxcd"
+    artifact: "oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests"
+  components:
+    - source-controller
+    - kustomize-controller
+    - helm-controller
+    - notification-controller
+  cluster:
+    type: kubernetes
+    size: small          # single-node k3s
+    networkPolicy: true
+  sync:
+    kind: GitRepository
+    url: "https://github.com/sanchpet/homelab.git"
+    ref: "refs/heads/main"
+    path: "kubernetes/clusters/ips-ger-vps-2"
+    # Public repo → anonymous HTTPS pull, no pullSecret. (In-repo secrets are SOPS-encrypted,
+    # decrypted in-cluster via the separate sops-age key. Add a pullSecret only if it goes private.)

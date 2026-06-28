@@ -1,0 +1,70 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vault
+  namespace: vault
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: vault
+      version: "0.30.0"  # verify latest: https://github.com/hashicorp/vault-helm/releases
+      sourceRef:
+        kind: HelmRepository
+        name: hashicorp
+        namespace: vault
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    global:
+      # TLS terminated at the NGF Gateway (vault-https:443). In-cluster traffic to :8200 is
+      # node-local on this single-node cluster, so plaintext there is acceptable.
+      tlsDisable: true
+    injector:
+      # ESO is the integration path for consumer clusters; the agent injector is unused.
+      enabled: false
+    ui:
+      enabled: true
+    server:
+      image:
+        tag: "1.21.2"  # keep in sync with the unseal image; verify: https://github.com/hashicorp/vault/releases
+      # Single-node integrated storage (Raft). replicas=1 → no HA/failover, acceptable for
+      # a homelab and matches the prior SOPS no-HA reality. Raft enables
+      # `vault operator raft snapshot` for backups (see README).
+      ha:
+        enabled: true
+        replicas: 1
+        raft:
+          enabled: true
+          setNodeId: true
+          config: |
+            ui = true
+
+            listener "tcp" {
+              tls_disable                        = 1
+              address                            = "[::]:8200"
+              cluster_address                    = "[::]:8201"
+              x_forwarded_for_authorized_addrs   = "0.0.0.0/0"
+              x_forwarded_for_reject_not_present = false
+            }
+
+            storage "raft" {
+              path = "/vault/data"
+            }
+
+            service_registration "kubernetes" {}
+      dataStorage:
+        enabled: true
+        size: 2Gi
+        storageClass: local-path  # k3s default local-path provisioner
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          memory: 256Mi

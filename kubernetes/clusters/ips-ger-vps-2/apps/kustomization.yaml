@@ -1,0 +1,7 @@
+---
+# Capability selection — apps layer. Vault only (this node is Vault-dedicated; no
+# vpn-stack). The vault overlay pairs the gateway-agnostic base with the HTTPRoute.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - vault

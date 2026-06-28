@@ -1,0 +1,5 @@
+# Flux Operator Helm values — single source shared between the bootstrap (Terraform passes
+# this same file as operator_chart.values_yaml) and the Flux-managed HelmRelease (via the
+# configMapGenerator in kustomization.yaml). Single-owner homelab: no multitenancy.
+reporting:
+  interval: 45s

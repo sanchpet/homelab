@@ -1,0 +1,9 @@
+---
+# Capability selection — config layer. public-tls (issuers) + vault-gateway (dedicated
+# Vault gateway + cert, parameterized). public-tls runtime-needs platform (taken in
+# controllers). The VPN nodes take vpn-gateway here instead.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../../infra/bundles/public-tls
+  - ../../../../infra/bundles/vault-gateway
