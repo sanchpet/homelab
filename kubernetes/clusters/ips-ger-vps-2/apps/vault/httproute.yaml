@@ -1,0 +1,40 @@
+---
+# HTTP→HTTPS redirect for the Vault hostname. ACME HTTP-01 challenges are still served on
+# :80 by the ClusterIssuer's own solver HTTPRoute, so this redirect does not break issuance.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: vault-redirect
+  namespace: vault
+spec:
+  parentRefs:
+    - name: main
+      namespace: nginx-gateway
+      sectionName: http
+  hostnames:
+    - vault.${cluster_subdomain}
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+---
+# Vault UI/API behind the TLS-terminating Gateway listener (vault-https:443). Routes to the
+# active Vault node (vault-active). Backend is in the same ns (vault) → no ReferenceGrant.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: vault
+  namespace: vault
+spec:
+  parentRefs:
+    - name: main
+      namespace: nginx-gateway
+      sectionName: vault-https
+  hostnames:
+    - vault.${cluster_subdomain}
+  rules:
+    - backendRefs:
+        - name: vault-active
+          port: 8200

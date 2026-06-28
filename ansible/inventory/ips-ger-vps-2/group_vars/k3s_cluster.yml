@@ -1,0 +1,24 @@
+---
+# Variables for the k3s_cluster group. Kept out of the inventory file on purpose
+# (topology vs variables separation). Committed — no secrets here.
+# (Connection user is ansible.cfg `remote_user`; ssh_public_key is in vars/fleet.yml.)
+
+# k3s version — bump to a recent stable (https://github.com/k3s-io/k3s/releases).
+k3s_version: v1.36.1+k3s1
+api_endpoint: "{{ hostvars[groups['server'][0]]['ansible_host'] }}"
+
+# Local kubeconfig context name — unique per cluster (collection defaults all clusters to
+# `k3s-ansible`, which overwrites). See ips-ger-vps group_vars for the full rationale.
+cluster_context: ips-ger-vps-2
+
+# token intentionally omitted: a single server auto-generates one. For multi-node,
+# set `token` here under ansible-vault (openssl rand -base64 64).
+
+# Server config (/etc/rancher/k3s/config.yaml): disable the bundled Traefik — it is
+# k3s-managed (outside Git). We run our own Gateway API controller (NGINX Gateway
+# Fabric) via Flux instead, version-pinned and GitOps-managed. Also make kubeconfig
+# world-readable.
+server_config_yaml: |
+  disable:
+    - traefik
+  write-kubeconfig-mode: "0644"

@@ -1,0 +1,31 @@
+---
+# Vault-node gateway (NGF). HTTP:80 for ACME HTTP-01 + the HTTP→HTTPS redirect.
+# HTTPS:443 terminates TLS for the Vault UI/API (vault.${cluster_subdomain}). This node is
+# Vault-dedicated, so 443 is free (no xray Reality holding it, unlike the VPN clusters
+# where the sub endpoint had to move to 8443). Parameterized per cluster via cluster-vars.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: main
+  namespace: nginx-gateway
+spec:
+  gatewayClassName: nginx
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: vault-https
+      port: 443
+      protocol: HTTPS
+      hostname: vault.${cluster_subdomain}
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: ${gateway_vault_tls_secret}
+      allowedRoutes:
+        namespaces:
+          from: All

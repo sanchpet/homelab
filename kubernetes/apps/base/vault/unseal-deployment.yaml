@@ -1,0 +1,49 @@
+---
+# Auto-unseal via a locally-stored key (parity with the sops-age key that already lives on
+# the node): polls the Vault pod and unseals it from the `vault-unseal-keys` Secret, which
+# is created out-of-band after `vault operator init` (see README.md). This removes the
+# manual-unseal-on-every-pod-restart toil without a cloud KMS — Yandex Cloud KMS is not a
+# native Vault seal type. Single-node: one pod, vault-0.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault-unseal
+  namespace: vault
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault-unseal
+  template:
+    metadata:
+      labels:
+        app: vault-unseal
+    spec:
+      serviceAccountName: vault-unseal
+      containers:
+        - name: unseal
+          image: hashicorp/vault:1.21.2  # keep in sync with server.image.tag in helmrelease.yaml
+          command:
+            - /bin/sh
+            - -c
+            - |
+              export VAULT_ADDR="http://vault-0.vault-internal.vault.svc.cluster.local:8200"
+              while true; do
+                if vault status 2>/dev/null | grep -q "Sealed.*true"; then
+                  echo "vault-0 is sealed — unsealing..."
+                  vault operator unseal "$UNSEAL_KEY_1" || echo "unseal failed (check the vault-unseal-keys secret)"
+                fi
+                sleep 30
+              done
+          env:
+            - name: UNSEAL_KEY_1
+              valueFrom:
+                secretKeyRef:
+                  name: vault-unseal-keys
+                  key: key-1
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi

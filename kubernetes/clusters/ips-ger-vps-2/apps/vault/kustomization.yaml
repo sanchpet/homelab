@@ -1,0 +1,8 @@
+---
+# Per-cluster vault overlay: gateway-agnostic base + the HTTPRoute that wires it to this
+# node's gateway listeners (parameterized hostname via ${cluster_subdomain}).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../../apps/base/vault
+  - httproute.yaml

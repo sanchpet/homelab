@@ -1,0 +1,9 @@
+---
+# Bundle `vault-gateway` — the dedicated Vault-node gateway + its TLS cert, parameterized
+# per cluster via ${cluster_subdomain} / ${gateway_vault_tls_secret}. Selected in the
+# config layer by the Vault host (the VPN nodes use `vpn-gateway` instead).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - gateway.yaml
+  - certificate.yaml
