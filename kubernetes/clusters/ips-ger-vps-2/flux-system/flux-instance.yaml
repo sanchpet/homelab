@@ -13,9 +13,8 @@ metadata:
   namespace: flux-system
 spec:
   distribution:
-    # Pin a specific 2.y.z for reproducibility (ADR-0001 — never float); the operator makes
-    # upgrades a one-line edit. Verify current: https://github.com/fluxcd/flux2/releases
-    version: "2.x"
+    # Pinned (ADR-0001 — never float); upgrade = bump here. Latest: github.com/fluxcd/flux2/releases
+    version: "2.8.8"
     registry: "ghcr.io/fluxcd"
     artifact: "oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests"
   components:
