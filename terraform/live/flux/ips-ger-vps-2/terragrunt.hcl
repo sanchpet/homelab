@@ -26,11 +26,16 @@ generate "provider" {
   path      = "provider.tf"
   if_exists = "overwrite"
   contents  = <<-EOF
-    provider "kubernetes" {}
+    # Both providers target the ips-ger-vps-2 cluster. The TF kubernetes provider does NOT
+    # read kubectl's KUBECONFIG by default (it looks for KUBE_CONFIG_PATH) — so bake the path
+    # in from the exported KUBECONFIG at generate time. helm v3: kubernetes is an attribute.
+    provider "kubernetes" {
+      config_path = "${get_env("KUBECONFIG", "~/.kube/config")}"
+    }
     provider "helm" {
-      # helm provider v3: `kubernetes` is an ATTRIBUTE (= {}), not a nested block (v2).
-      # Empty → default kubeconfig loading rules (KUBECONFIG env).
-      kubernetes = {}
+      kubernetes = {
+        config_path = "${get_env("KUBECONFIG", "~/.kube/config")}"
+      }
     }
   EOF
 }
