@@ -41,7 +41,9 @@ inputs = {
   revision = 1 # bump to force a bootstrap re-run
 
   gitops_resources = {
-    instance_yaml = file("${get_terragrunt_dir()}/flux-instance.yaml")
+    # The FluxInstance lives in the GitOps tree (single source of truth); TF only READS it to
+    # seed, then Flux reconciles it from git (dual lifecycle — per the Flux blog).
+    instance_yaml = file("${get_repo_root()}/kubernetes/clusters/ips-ger-vps-2/flux-system/flux-instance.yaml")
   }
 
   # flux-system pullSecret referenced by the FluxInstance sync — GitHub App auth for git.

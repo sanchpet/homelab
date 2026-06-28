@@ -1,0 +1,8 @@
+---
+# flux-system/ holds the FluxInstance (operator pattern, ADR-0002) — NOT CLI-generated
+# gotk-components. Reconciled in steady state via the cluster root kustomization, so Flux
+# self-manages its own desired state; Terraform only seeds the same flux-instance.yaml once.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - flux-instance.yaml

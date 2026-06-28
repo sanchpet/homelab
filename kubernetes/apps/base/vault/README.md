@@ -12,8 +12,10 @@ Decision record and the secret-store comparison/ArchGate live in the governance 
 - `kubernetes/apps/base/vault/` — reusable Vault deploy (Helm release + auto-unsealer).
 - `kubernetes/clusters/ips-ger-vps-2/apps/vault/` — per-cluster overlay (HTTPRoute).
 - `kubernetes/infra/bundles/vault-gateway/` — dedicated Gateway listener + cert bundle.
-- `kubernetes/clusters/ips-ger-vps-2/` — Flux entrypoint (cluster-vars + layer KS).
-- `terraform/live/flux/ips-ger-vps-2/` — declarative Flux bootstrap (operator + FluxInstance, ADR-0002).
+- `kubernetes/clusters/ips-ger-vps-2/` — Flux entrypoint (cluster-vars + layer KS);
+  `flux-system/flux-instance.yaml` = the FluxInstance (GitOps source of truth, reconciled).
+- `terraform/live/flux/ips-ger-vps-2/` — Flux seed: reads that FluxInstance, creates the
+  git pullSecret (ADR-0002). Owns only the ephemeral bootstrap.
 - `ansible/inventory/ips-ger-vps-2/` — node bootstrap + k3s install.
 
 ## Bring-up order
