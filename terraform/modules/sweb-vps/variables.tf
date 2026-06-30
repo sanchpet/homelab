@@ -32,11 +32,38 @@ variable "password" {
   sensitive   = true
 }
 
-# --- Node definition ---
+# --- Node group definition ---
+#
+# The module manages a group of identical nodes sharing one slug, named <slug>-<index>
+# (e.g. infra-01, infra-02). Nodes are keyed by name via for_each, so adding or removing one
+# never reindexes — and so never destroys — its siblings (which `count` would).
 
-variable "alias" {
-  description = "Human-facing name for the VPS."
+variable "slug" {
+  description = "Group slug shared by every node; node names are <slug>-<index> (e.g. \"infra\" -> infra-01)."
   type        = string
+}
+
+variable "node_count" {
+  description = "Number of identical nodes to manage in the group."
+  type        = number
+  default     = 1
+
+  validation {
+    condition     = var.node_count >= 1
+    error_message = "node_count must be at least 1."
+  }
+}
+
+variable "index_width" {
+  description = "Zero-pad width of the node index (2 -> infra-01; 1 -> infra-1)."
+  type        = number
+  default     = 2
+}
+
+variable "index_start" {
+  description = "First index value (1 -> infra-01, infra-02, ...)."
+  type        = number
+  default     = 1
 }
 
 variable "distributive" {

@@ -1,26 +1,27 @@
-# Outputs: identifiers + reachability for wiring into ansible / Flux / DNS.
+# Outputs: identifiers + reachability per node, keyed by node name (e.g. "infra-01"), for
+# wiring into ansible / Flux / DNS.
 
-output "billing_id" {
-  description = "SpaceWeb service id (login_vps_N) — the resource id and delete/import key."
-  value       = sweb_vps.this.billing_id
+output "billing_ids" {
+  description = "Map node name -> SpaceWeb service id (login_vps_N), the resource id and delete/import key."
+  value       = { for k, v in sweb_vps.this : k => v.billing_id }
 }
 
-output "uid" {
-  description = "Stable unique id of the VPS."
-  value       = sweb_vps.this.uid
+output "uids" {
+  description = "Map node name -> stable unique id of the VPS."
+  value       = { for k, v in sweb_vps.this : k => v.uid }
 }
 
-output "name" {
-  description = "Effective name reported by the API."
-  value       = sweb_vps.this.name
+output "names" {
+  description = "Map node name -> effective name reported by the API."
+  value       = { for k, v in sweb_vps.this : k => v.name }
 }
 
-output "ip" {
-  description = "Primary IP address."
-  value       = sweb_vps.this.ip
+output "ips" {
+  description = "Map node name -> primary IP address."
+  value       = { for k, v in sweb_vps.this : k => v.ip }
 }
 
 output "running" {
-  description = "Whether the VPS is running."
-  value       = sweb_vps.this.running
+  description = "Map node name -> whether the VPS is running."
+  value       = { for k, v in sweb_vps.this : k => v.running }
 }
