@@ -13,16 +13,12 @@ does not need to match the scheme before import — `terragrunt apply` renames i
 
 ## Prerequisites
 
-**SpaceWeb auth** is injected automatically by the scoped `../mise.toml`: run `sweb
-configure` once on the machine, and entering this dir mints a fresh `SWEB_TOKEN` (via
-`sweb token`) — no login/password in the environment. (Manual fallback:
-`export SWEB_LOGIN=... SWEB_PASSWORD=...`, or `export SWEB_TOKEN=...`.)
-
-**Yandex S3 state backend** (see `../../root.hcl`) still comes from the environment:
-
-```sh
-export AWS_ACCESS_KEY_ID=...  AWS_SECRET_ACCESS_KEY=...  TF_STATE_BUCKET=sanchpet-homelab-tfstate
-```
+Auth is injected by `terraform/mise.toml` on entering the `terraform/` tree — run `sweb
+configure` (and `yc init`) once, and both `SWEB_TOKEN` and `YC_TOKEN` are exported
+automatically, no credentials in the environment. `TF_STATE_BUCKET` / `AWS_PROFILE` for the
+S3 state backend are set there too; the AWS profile's static keys live in `~/.aws/credentials`
+(`aws configure --profile homelab`). Manual SpaceWeb fallback:
+`export SWEB_LOGIN=... SWEB_PASSWORD=...`, or `export SWEB_TOKEN=...`.
 
 ## Import
 
