@@ -22,7 +22,7 @@ terraform {
 
 inputs = {
   slug        = "infra"
-  node_count  = 1 # only the first node exists today; bump to grow the cluster
+  node_count  = 3 # 3-node k3s stacked-HA cluster "sweb-infra" (SYS-001 ADR-0005). infra-01 imported; 02/03 created on apply.
   index_width = 2 # infra-01, infra-02, …
 
   # Plan-mode (matches what `terraform import` reconstructs). 379 = Облако-2/6/15 — the
