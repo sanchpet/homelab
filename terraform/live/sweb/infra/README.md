@@ -6,19 +6,10 @@ the `sweb-vps` module). Today only the first node exists: `petrovpet2_vps_10`
 Terragrunt by **import**, not recreate — a fresh apply would bill a second node, and the
 original is delete-locked for 24h.
 
-Uses the `sanchpet/sweb` provider (github.com/sanchpet/terraform-provider-sweb), published
-to the Terraform Registry.
-
-## Step 0 — rename the existing node to match the scheme (BLOCKING)
-
-The provider cannot rename a node (no SDK `Rename`; an `alias` change forces replacement),
-and `import` reads the node's real name from the API. So the node's SpaceWeb name must
-**already** equal the templated name before import, or `terragrunt plan` will want to replace
-it.
-
-In the **SpaceWeb panel**, rename the node `infra-hub` → **`infra-01`**. (This is a label
-change; it does not touch the VM.) If the panel does not support renaming a VPS, switch the
-scheme to keep the existing name (see WP-058 — option "keep infra-hub").
+Uses the `sanchpet/sweb` provider (github.com/sanchpet/terraform-provider-sweb) **>= 0.2**,
+published to the Terraform Registry. That version renames a node **in place** (an `alias`
+change is an update, not a replacement), so the node's current SpaceWeb name (`infra-hub`)
+does not need to match the scheme before import — `terragrunt apply` renames it to `infra-01`.
 
 ## Prerequisites
 
@@ -37,6 +28,8 @@ terragrunt init
 terragrunt import 'sweb_vps.this["infra-01"]' petrovpet2_vps_10
 ```
 
+Import reads the node's current API name (`infra-hub`) into state.
+
 ## Reconcile to a clean plan
 
 Import reconstructs the node in **plan-mode** from the API. Read the real ids it wrote and
@@ -45,12 +38,16 @@ correct `terragrunt.hcl` so the desired state matches:
 ```sh
 terragrunt state show 'sweb_vps.this["infra-01"]'   # note os_distr_id, datacenter_id, plan_id
 # -> edit terragrunt.hcl: set distributive / datacenter (and confirm plan = 379)
-terragrunt plan                                      # must report: No changes
+terragrunt plan     # expect ONE in-place update: alias "infra-hub" -> "infra-01"
+terragrunt apply    # renames the node in place (no replacement)
+terragrunt plan     # now must report: No changes
 ```
 
-`ssh_key` is create-only and not recoverable from the API; if the node was created with one,
-re-declare it in HCL (it won't force replacement on an already-imported resource unless
-changed). A clean `terragrunt plan` is the proof that the node is now managed as code.
+The rename is the only expected change (the module's for_each key is `infra-01`, the node is
+still named `infra-hub`). `ssh_key` is create-only and not recoverable from the API; if the
+node was created with one, re-declare it in HCL (it won't force replacement on an
+already-imported resource unless changed). A clean `terragrunt plan` after the rename apply is
+the proof that the node is now managed as code.
 
 ## Grow the cluster
 

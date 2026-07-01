@@ -26,13 +26,13 @@ Usage example: [`terragrunt.example.hcl`](./terragrunt.example.hcl).
 | Name | Version |
 | ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.11.0 |
-| <a name="requirement_sweb"></a> [sweb](#requirement\_sweb) | ~> 0.1 |
+| <a name="requirement_sweb"></a> [sweb](#requirement\_sweb) | ~> 0.2 |
 
 ## Providers
 
 | Name | Version |
 | ---- | ------- |
-| <a name="provider_sweb"></a> [sweb](#provider\_sweb) | ~> 0.1 |
+| <a name="provider_sweb"></a> [sweb](#provider\_sweb) | ~> 0.2 |
 
 ## Modules
 

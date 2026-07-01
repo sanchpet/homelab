@@ -11,7 +11,7 @@ terraform {
   required_providers {
     sweb = {
       source  = "sanchpet/sweb"
-      version = "~> 0.1"
+      version = "~> 0.2" # >= 0.2: in-place alias rename (no replacement)
     }
   }
 }
