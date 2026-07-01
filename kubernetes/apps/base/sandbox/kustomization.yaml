@@ -1,0 +1,10 @@
+---
+# Sandbox catalog: one shared learning-monorepo source + one Kustomization per learning
+# app. Add a new learning app = add its <app>.yaml (a Kustomization on the shared source)
+# and list it below — the source stays single.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: flux-system
+resources:
+  - source.yaml
+  - incident-agent.yaml

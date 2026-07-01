@@ -1,0 +1,17 @@
+---
+# Shared Flux source for learning-monorepo. One GitRepository per repo — every learning
+# app is a Kustomization that references it via sourceRef, so source-controller fetches
+# the repo ONCE and all apps reuse the artifact. Add apps, not sources.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: learning-monorepo
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: https://github.com/sanchpet/learning-monorepo.git   # public repo → no secretRef
+  ref:
+    # Tracking `main` is intentional (own repo, low-blast-radius read-only sandbox),
+    # like flux-system tracks its own branch. ADR-0001's "never float a version" is
+    # about chart/CRD versions, not a config repo's branch.
+    branch: main

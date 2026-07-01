@@ -1,9 +1,0 @@
----
-# Pure catalog entry (no cluster names): the Flux source + Kustomization that pull
-# the incident-agent RBAC from learning-monorepo. Selected per-cluster from the apps
-# overlay (only ips-ger-vps-2 runs the sandbox).
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-namespace: flux-system
-resources:
-  - git-repository.yaml

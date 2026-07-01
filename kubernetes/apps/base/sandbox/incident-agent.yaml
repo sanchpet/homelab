@@ -1,0 +1,21 @@
+---
+# k8s incident agent (R-014 lesson-02). Path targets the app's k8s/ ROOT (aggregated by
+# its own kustomization.yaml in learning-monorepo), so the app owns its cluster footprint:
+# new manifests there (RBAC today; NetworkPolicy / test fixtures later) flow in without a
+# homelab change. Trade-off: homelab applies whatever the app declares under k8s/ — fine
+# for a trusted own repo in a read-only sandbox.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: incident-agent
+  namespace: flux-system
+spec:
+  interval: 1h
+  retryInterval: 2m
+  timeout: 5m
+  prune: true          # delete resources dropped from the app's k8s/ dir
+  wait: true           # RBAC is Ready immediately (no health probes)
+  sourceRef:
+    kind: GitRepository
+    name: learning-monorepo
+  path: ./courses/r-014-slurm-ai-agents/02-sdk-incident-agent/k8s

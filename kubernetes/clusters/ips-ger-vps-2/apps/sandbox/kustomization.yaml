@@ -1,7 +1,7 @@
 ---
-# Sandbox capability selection for this cluster (learning workloads only). Points at
-# the pure base; no per-cluster customs yet, so it's a plain passthrough.
+# Sandbox capability selection for this cluster (learning workloads only). Selects the
+# whole sandbox catalog (shared source + all learning apps); no per-cluster customs.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ../../../../apps/base/sandbox/incident-agent
+  - ../../../../apps/base/sandbox
