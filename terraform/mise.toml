@@ -15,7 +15,8 @@ TF_STATE_BUCKET = "sanchpet-homelab-tfstate"
 # static key). Configure once: `aws configure --profile homelab` (keys from `terragrunt
 # output` of yc-s3-tf-state). Keys live in ~/.aws/credentials, not Git.
 AWS_PROFILE = "homelab"
-# Auto-export cloud tokens on entering terraform/ (not stored in Git; minted on demand,
-# no-op if the CLI isn't configured). YC_TOKEN is cached ~11h; SWEB_TOKEN is minted fresh
-# (short-lived, no refresh). One-time setup: `yc init` / `sweb configure`.
+# Auto-export cloud tokens on entering terraform/ (not stored in Git; no-op if the CLI
+# isn't configured). Both are CACHED so navigating dirs doesn't hammer the token endpoints:
+# YC_TOKEN ~11h, SWEB_TOKEN ~30min (its getToken is rate-limited). Setup: `yc init` /
+# `sweb configure`.
 _.source = ["scripts/yc-token.sh", "scripts/sweb-token.sh"]
