@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Sourced by mise ([env]._.source in the repo-root mise.toml) on entering the repo —
+# Sourced by mise ([env]._.source in terraform/mise.toml) on entering terraform/ —
 # exports a Yandex IAM token as YC_TOKEN for the terraform/ units (the yandex provider
 # reads it). IAM tokens live ~12h, so it's cached ~11h to avoid calling the API on every
-# shell prompt. No-ops silently if yc isn't available/logged in (non-Yandex work in the
-# repo isn't disturbed).
+# shell prompt. No-ops silently if yc isn't available/logged in (non-Yandex work in
+# terraform/ isn't disturbed).
 #
 # Note: mise runs this in a bare `bash --noprofile` where the mise tool PATH (and thus the
 # `yc` shim) isn't set up yet — hence the `mise x -- yc` fallback. The cache read is OUTSIDE

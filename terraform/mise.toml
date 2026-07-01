@@ -1,0 +1,22 @@
+# Terraform-scoped config: Yandex Cloud + SpaceWeb context and auth for the units here.
+# Merges with the repo-root mise.toml, which keeps the terraform TOOLCHAIN at root — the
+# antonbabenko/pre-commit-terraform hooks run from the repo root and need those binaries on
+# PATH there. This file adds what's only relevant when actually running terragrunt.
+
+[tools]
+# SpaceWeb CLI (prebuilt from GitHub releases, no Go needed), used by scripts/sweb-token.sh.
+"github:sanchpet/sweb" = "0.3.0"
+
+[env]
+# Yandex Cloud context for the units (identifiers, not secrets).
+YC_CLOUD_ID     = "b1gr5nrg10c4rnr8gehu"
+TF_STATE_BUCKET = "sanchpet-homelab-tfstate"
+# The S3 state backend authenticates with this AWS named profile (the storage-admin SA
+# static key). Configure once: `aws configure --profile homelab` (keys from `terragrunt
+# output` of yc-s3-tf-state). Keys live in ~/.aws/credentials, not Git.
+AWS_PROFILE = "homelab"
+# Auto-export cloud tokens on entering terraform/ (not stored in Git; no-op if the CLI
+# isn't configured). Both are CACHED so navigating dirs doesn't hammer the token endpoints:
+# YC_TOKEN ~11h, SWEB_TOKEN ~2h (its getToken is rate-limited). Setup: `yc init` /
+# `sweb configure`.
+_.source = ["scripts/yc-token.sh", "scripts/sweb-token.sh"]
