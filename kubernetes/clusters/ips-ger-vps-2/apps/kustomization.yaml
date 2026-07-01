@@ -5,3 +5,4 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - vault
+  - sandbox   # learning: read-only incident-agent RBAC pulled from learning-monorepo
