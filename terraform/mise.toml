@@ -17,6 +17,6 @@ TF_STATE_BUCKET = "sanchpet-homelab-tfstate"
 AWS_PROFILE = "homelab"
 # Auto-export cloud tokens on entering terraform/ (not stored in Git; no-op if the CLI
 # isn't configured). Both are CACHED so navigating dirs doesn't hammer the token endpoints:
-# YC_TOKEN ~11h, SWEB_TOKEN ~30min (its getToken is rate-limited). Setup: `yc init` /
+# YC_TOKEN ~11h, SWEB_TOKEN ~2h (its getToken is rate-limited). Setup: `yc init` /
 # `sweb configure`.
 _.source = ["scripts/yc-token.sh", "scripts/sweb-token.sh"]
