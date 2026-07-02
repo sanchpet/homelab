@@ -1,0 +1,6 @@
+---
+# Capability selection — apps layer. Empty in the scaffold; Vault (HA raft ×3) and
+# vaultwarden land here next (each as its own overlay: base + HTTPRoute + gateway listener).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources: []

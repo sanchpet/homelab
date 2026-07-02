@@ -1,0 +1,24 @@
+---
+# Shared ingress gateway for sweb-infra (NGF). One `main` gateway fronts every app under
+# *.infra.sanch.pet — this cluster is multi-app (Vault, vaultwarden, …), unlike the
+# single-purpose fleet nodes whose gateway bundles carry one HTTPS listener each.
+#
+# Scaffold state: HTTP:80 only — enough for ACME HTTP-01 (the issuer's gatewayHTTPRoute
+# solver attaches here) and the HTTP→HTTPS redirect. Each app adds its own HTTPS:443
+# listener (hostname <app>.infra.sanch.pet + its per-host cert secret) when it lands, since
+# HTTP-01 issues per-host certs (no wildcard cert). DNS is round-robin: *.infra.sanch.pet →
+# the 3 node IPs, and k3s ServiceLB exposes this gateway on every node.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: main
+  namespace: nginx-gateway
+spec:
+  gatewayClassName: nginx
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: All
