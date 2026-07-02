@@ -25,9 +25,15 @@ inputs = {
   node_count  = 3 # 3-node k3s stacked-HA cluster "sweb-infra" (SYS-001 ADR-0005). infra-01 imported; 02/03 created on apply.
   index_width = 2 # infra-01, infra-02, …
 
-  # Plan-mode (matches what `terraform import` reconstructs). 379 = Облако-2/6/15 — the
-  # configurator 2cpu/6GB/15GB (nvme) this node was created with, resolved to a plan id.
-  plan = 379
+  # Readable spec — resolved to a plan id at plan-time by the sweb_plan data source
+  # (module keeps the resource in plan-mode, so imported infra-01 stays clean). This
+  # is the 2cpu/6GB/15GB NVMe configurator infra-01 was created with → plan id 379.
+  # Note: the id is re-resolved each plan; a catalog remap on SpaceWeb's side could
+  # move it (low risk for this stable plan) — pin `plan = <id>` to freeze if needed.
+  cpu      = 2
+  ram      = 6  # GB
+  disk     = 15 # GB
+  category = 1  # 1=nvme, 2=hdd, 3=turbo
 
   # ⚠️ CONFIRM AFTER IMPORT: these are best-guesses so `import` passes schema validation.
   # Import reads the real values from the API; after it, run

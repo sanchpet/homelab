@@ -11,7 +11,7 @@ terraform {
   required_providers {
     sweb = {
       source  = "sanchpet/sweb"
-      version = "~> 0.3.0" # >= 0.3.0: tolerates the API's number-or-string fields (plan_price float) + in-place resize; < 0.4.0
+      version = "~> 0.4.0" # >= 0.4.0: sweb_plan data source (resolve spec -> plan id); tolerant number decoding + in-place resize; < 0.5.0
     }
   }
 }
