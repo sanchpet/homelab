@@ -1,0 +1,7 @@
+---
+# Capability selection — controllers layer. sweb-infra runs the shared platform
+# (cert-manager + NGF + reloader) for the apps it hosts (Vault, vaultwarden, …).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../../infra/bundles/platform

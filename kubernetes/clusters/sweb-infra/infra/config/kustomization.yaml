@@ -1,0 +1,12 @@
+---
+# Capability selection — config layer. public-tls (Let's Encrypt issuers, runtime-needs
+# cert-manager from the platform bundle) + this cluster's shared `main` gateway.
+#
+# Unlike the single-purpose fleet nodes (which take vault-gateway / vpn-gateway), sweb-infra
+# fronts MANY apps under *.infra.sanch.pet, so the gateway is a cluster-local shared one:
+# HTTP:80 now (ACME HTTP-01 + redirect); per-app HTTPS listeners get added with each app.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../../infra/bundles/public-tls
+  - gateway.yaml

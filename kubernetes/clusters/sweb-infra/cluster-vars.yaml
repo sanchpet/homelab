@@ -1,0 +1,19 @@
+---
+# Per-cluster variables: subdomain + ALL component versions for THIS cluster.
+# Each layer Flux Kustomization substitutes from here (postBuild.substituteFrom).
+# Never leave a version unset — Flux would float to latest (non-reproducible).
+# sweb-infra is the RU 3-node hub; apps live under *.infra.sanch.pet (DNS round-robin
+# over the 3 node IPs; ServiceLB exposes the `main` gateway on every node).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-vars
+  namespace: flux-system
+data:
+  cluster_subdomain: "infra.sanch.pet"
+  acme_email: "ops@sanch.pet"
+  # Versions aligned with the rest of the fleet (ips-ger-vps-2) — known-good, pinned.
+  gateway_api_version: "v1.5.1"
+  cert_manager_version: "v1.20.2"
+  ngf_version: "2.6.3"
+  reloader_version: "2.2.12"

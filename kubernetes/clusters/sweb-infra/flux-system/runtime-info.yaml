@@ -1,0 +1,16 @@
+---
+# Cluster metadata for the operator's FluxReport / variable substitution (optional).
+# SSA Merge: the operator may add runtime fields; git owns only the ones declared here.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flux-runtime-info
+  namespace: flux-system
+  labels:
+    toolkit.fluxcd.io/runtime: "true"
+    reconcile.fluxcd.io/watch: Enabled
+  annotations:
+    kustomize.toolkit.fluxcd.io/ssa: "Merge"
+data:
+  ENVIRONMENT: homelab
+  CLUSTER_NAME: sweb-infra
