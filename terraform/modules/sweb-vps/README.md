@@ -26,13 +26,13 @@ Usage example: [`terragrunt.example.hcl`](./terragrunt.example.hcl).
 | Name | Version |
 | ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.11.0 |
-| <a name="requirement_sweb"></a> [sweb](#requirement\_sweb) | ~> 0.2.1 |
+| <a name="requirement_sweb"></a> [sweb](#requirement\_sweb) | ~> 0.4.0 |
 
 ## Providers
 
 | Name | Version |
 | ---- | ------- |
-| <a name="provider_sweb"></a> [sweb](#provider\_sweb) | ~> 0.2.1 |
+| <a name="provider_sweb"></a> [sweb](#provider\_sweb) | ~> 0.4.0 |
 
 ## Modules
 
@@ -43,16 +43,17 @@ No modules.
 | Name | Type |
 | ---- | ---- |
 | [sweb_vps.this](https://registry.terraform.io/providers/sanchpet/sweb/latest/docs/resources/vps) | resource |
+| [sweb_plan.spec](https://registry.terraform.io/providers/sanchpet/sweb/latest/docs/data-sources/plan) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | :------: |
-| <a name="input_category"></a> [category](#input\_category) | Configurator: catalog category id (1=nvme, 2=hdd, 3=turbo). Defaults to 1 in the provider. | `number` | `null` | no |
-| <a name="input_cpu"></a> [cpu](#input\_cpu) | Configurator: CPU cores. Mutually exclusive with plan. | `number` | `null` | no |
+| <a name="input_category"></a> [category](#input\_category) | Spec: catalog category id (1=nvme, 2=hdd, 3=turbo). Null → sweb\_plan defaults to 1 (nvme). | `number` | `null` | no |
+| <a name="input_cpu"></a> [cpu](#input\_cpu) | Spec: CPU cores. Resolved to a plan id via sweb\_plan. Mutually exclusive with plan. | `number` | `null` | no |
 | <a name="input_create_timeout"></a> [create\_timeout](#input\_create\_timeout) | Max time to wait for the VPS to become ready. | `string` | `"15m"` | no |
 | <a name="input_datacenter"></a> [datacenter](#input\_datacenter) | Datacenter id (1=spb, 2=msk, 3=ams). | `number` | n/a | yes |
-| <a name="input_disk"></a> [disk](#input\_disk) | Configurator: disk in GB. | `number` | `null` | no |
+| <a name="input_disk"></a> [disk](#input\_disk) | Spec: disk in GB. | `number` | `null` | no |
 | <a name="input_distributive"></a> [distributive](#input\_distributive) | OS distributive id (e.g. 164=debian-13, 122=ubuntu-24.04). | `number` | n/a | yes |
 | <a name="input_endpoint"></a> [endpoint](#input\_endpoint) | API root override. Null → provider uses $SWEB\_ENDPOINT, then the production API. | `string` | `null` | no |
 | <a name="input_index_start"></a> [index\_start](#input\_index\_start) | First index value (1 -> infra-01, infra-02, ...). | `number` | `1` | no |
@@ -61,8 +62,8 @@ No modules.
 | <a name="input_login"></a> [login](#input\_login) | Login for transparent token refresh. Null → provider uses $SWEB\_LOGIN. | `string` | `null` | no |
 | <a name="input_node_count"></a> [node\_count](#input\_node\_count) | Number of identical nodes to manage in the group. | `number` | `1` | no |
 | <a name="input_password"></a> [password](#input\_password) | Password for transparent token refresh. Null → provider uses $SWEB\_PASSWORD. | `string` | `null` | no |
-| <a name="input_plan"></a> [plan](#input\_plan) | Ready-made plan id. Mutually exclusive with the configurator. | `number` | `null` | no |
-| <a name="input_ram"></a> [ram](#input\_ram) | Configurator: RAM in GB. | `number` | `null` | no |
+| <a name="input_plan"></a> [plan](#input\_plan) | Ready-made plan id. Mutually exclusive with the spec (cpu/ram/disk). | `number` | `null` | no |
+| <a name="input_ram"></a> [ram](#input\_ram) | Spec: RAM in GB. | `number` | `null` | no |
 | <a name="input_slug"></a> [slug](#input\_slug) | Group slug shared by every node; node names are <slug>-<index> (e.g. "infra" -> infra-01). | `string` | n/a | yes |
 | <a name="input_ssh_key"></a> [ssh\_key](#input\_ssh\_key) | SSH public key id to inject at create. Create-only; not recoverable on import. | `string` | `null` | no |
 | <a name="input_token"></a> [token](#input\_token) | API token. Null → provider uses $SWEB\_TOKEN. One-off (no refresh). | `string` | `null` | no |

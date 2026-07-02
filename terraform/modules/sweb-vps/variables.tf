@@ -76,35 +76,37 @@ variable "datacenter" {
   type        = number
 }
 
-# Provisioning mode — set EITHER plan OR the configurator (cpu/ram/disk[/category]).
-# The provider enforces exactly-one-of (plan, cpu) and recreates the node on any change.
+# Provisioning: set EITHER a literal `plan` id OR the readable spec (cpu/ram/disk
+# [/category]). The spec is resolved to a plan id via the sweb_plan data source and
+# the node is provisioned in PLAN-MODE either way — so an imported plan-mode node
+# stays clean (no changePlan/resize) while HCL still reads by resources.
 
 variable "plan" {
-  description = "Ready-made plan id. Mutually exclusive with the configurator."
+  description = "Ready-made plan id. Mutually exclusive with the spec (cpu/ram/disk)."
   type        = number
   default     = null
 }
 
 variable "cpu" {
-  description = "Configurator: CPU cores. Mutually exclusive with plan."
+  description = "Spec: CPU cores. Resolved to a plan id via sweb_plan. Mutually exclusive with plan."
   type        = number
   default     = null
 }
 
 variable "ram" {
-  description = "Configurator: RAM in GB."
+  description = "Spec: RAM in GB."
   type        = number
   default     = null
 }
 
 variable "disk" {
-  description = "Configurator: disk in GB."
+  description = "Spec: disk in GB."
   type        = number
   default     = null
 }
 
 variable "category" {
-  description = "Configurator: catalog category id (1=nvme, 2=hdd, 3=turbo). Defaults to 1 in the provider."
+  description = "Spec: catalog category id (1=nvme, 2=hdd, 3=turbo). Null → sweb_plan defaults to 1 (nvme)."
   type        = number
   default     = null
 }

@@ -1,0 +1,55 @@
+---
+# Variables for the sweb-infra k3s_cluster group (3-node stacked HA, SYS-001 ADR-0005).
+# Kept out of the inventory file on purpose (topology vs variables separation). Committed —
+# no secrets here (the HA token is a vaulted var, see below).
+# (Connection user is ansible.cfg `remote_user`; ssh_public_key is in vars/fleet.yml.)
+
+# k3s version — bump to a recent stable (https://github.com/k3s-io/k3s/releases).
+# Matches the fresh ips-ger-vps host; align the rest of the fleet in the Ф3 upgrade pass.
+k3s_version: v1.36.1+k3s1
+
+# HA REQUIRES a shared cluster token. A single server auto-generates one, but multi-server
+# nodes must share a token to init/join the same etcd cluster. Do NOT commit it in clear.
+# Create once and vault it, then define `vault_k3s_token` in a vaulted file:
+#   openssl rand -base64 64                                   # generate
+#   ansible-vault create inventory/sweb-infra/group_vars/vault.yml
+#   # → vault_k3s_token: "<the 64-byte value>"
+token: "{{ vault_k3s_token }}"
+
+# API endpoint used by the collection for (a) the join URL of servers 2/3 and (b) the
+# generated kubeconfig's server URL. Kept on the FIRST server on purpose: the join must
+# target a node that is definitely up during bootstrap (a round-robin name could resolve to
+# a not-yet-joined node). API HA for CLIENTS is done separately via DNS round-robin +
+# tls-san (below): point kubectl/Flux at https://apiserver.infra.sanch.pet:6443 — the cert
+# is valid there because the RR name is in tls-san. Runtime HA needs nothing more: each
+# server is autonomous (own apiserver + etcd member; kubelets talk to localhost), so
+# server[0] dying does not take down the control plane — only new joins/that one kubeconfig
+# URL care about it. kube-vip is not an option here (SpaceWeb has no floating/L2 IP).
+api_endpoint: "{{ hostvars[groups['server'][0]]['ansible_host'] }}"
+
+# Local kubeconfig context name — unique per cluster (the collection defaults every cluster
+# to `k3s-ansible`, which would overwrite. See ips-usa-vps-2 group_vars for the rationale).
+cluster_context: sweb-infra
+
+# Server config (/etc/rancher/k3s/config.yaml):
+#  - disable the bundled Traefik — we run NGINX Gateway Fabric via Flux (version-pinned).
+#  - world-readable kubeconfig.
+#  - secrets-encryption: ADR-0005 mitigation — encrypt Secrets at rest in etcd (no prereqs).
+#  - tls-san: SANs the apiserver cert must be valid for. This list OVERRIDES the collection's
+#    auto-added scalar (it merges server_config_yaml last), so it must ALSO include
+#    api_endpoint (infra-01) or the servers-2/3 join over TLS breaks. `apiserver.infra.sanch.pet`
+#    is the DNS round-robin name (3 A-records → the 3 node IPs, owner-created) that clients use
+#    for HA API access. The per-node names let you hit any node directly too.
+# TODO(ADR-0005): `profile: cis` — deferred. The k3s CIS profile needs prerequisites (an
+# `etcd` system user + several sysctls per the k3s CIS guide) wired into the `hardening`
+# role first; enabling it bare breaks bootstrap. Follow-up before production secrets land.
+server_config_yaml: |
+  disable:
+    - traefik
+  write-kubeconfig-mode: "0644"
+  secrets-encryption: true
+  tls-san:
+    - apiserver.infra.sanch.pet
+    - infra-01.sweb.sanch.pet
+    - infra-02.sweb.sanch.pet
+    - infra-03.sweb.sanch.pet

@@ -11,7 +11,7 @@ terraform {
   required_providers {
     sweb = {
       source  = "sanchpet/sweb"
-      version = "~> 0.2.1" # >= 0.2.1: in-place rename with a clean plan; < 0.3.0
+      version = "~> 0.4.0" # >= 0.4.0: sweb_plan data source (resolve spec -> plan id); tolerant number decoding + in-place resize; < 0.5.0
     }
   }
 }
